@@ -1,0 +1,36 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem;
+  text-align: center;
+}
+
+.navbar{
+  display: flex;
+  justify-content: space-evenly;
+  background-color: black;
+  border-radius: 15%;
+  max-height: 5%;
+}
+
+.tab{
+  background-color: black;
+  color: white;
+  border: white;
+}
+
+.active-tab{
+  background-color: white;
+  color: black;
+  border: black;
+}
+.list-container{
+  padding: 0;
+}
+
+.list-item{
+  display: flex;
+  justify-content: space-between;
+  border-radius: 2px #ccc;
+}
+
