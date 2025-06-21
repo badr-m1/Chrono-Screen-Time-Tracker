@@ -1,4 +1,6 @@
 const ALARM_NAME = "tracker-alarm"
+const INTERVAL_TIME = 1000
+let tempUsageData = {}
 let intervalId = null;
 var currentUrl = null
 var activeSince = null
@@ -7,16 +9,6 @@ function getWeekNumber(date) {
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
   const pastDaysOfYear = Math.floor((date - firstDayOfYear) / 86400000);
   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
-
-function setCurrentUrl(url){
-  updateTimeTracking(currentUrl, Date.now() - activeSince)
-  
-  url = getHostnameIfValid(url)
-  currentUrl = url
-  activeSince = (url != null) ? Date.now() : null
-  
-  console.log("current url updated: " + url)
 }
 
 function getHostnameIfValid(url) {
@@ -28,9 +20,12 @@ function getHostnameIfValid(url) {
   }
 }
 
+function updateTempUsageData(url,time){
+  if(url === null || time === null || time > 35000) return;
+  tempUsageData[url] = (tempUsageData[url]|| 0) + time;
+}
 
-const updateTimeTracking = (url, time) => {
-  if(url === null || activeSince === null || time > 35000) return;
+function updateStorage(url, time){
   
   console.log("saving " + url + " : "  + time)
   
@@ -71,48 +66,40 @@ const updateTimeTracking = (url, time) => {
   
 }
 
-chrome.tabs.onActivated.addListener(({ tabId }) => {
-  chrome.tabs.get(tabId, (tab) => {
-    if (chrome.runtime.lastError || !tab) {
-      setCurrentUrl(null);
-     
-    }else{
-      setCurrentUrl(tab.url);
-    }
-  });
-});
-
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (tab.active && changeInfo.status === "complete") {
-    setCurrentUrl(tab.url);
+function migrateToStorage(){
+  const urls = Object.keys(tempUsageData)
+  for(let i = 0; i < urls.length; i++){
+    updateStorage(urls[i],tempUsageData[urls[i]])
   }
-});
-
-async function getCurrentTab() {
-  let queryOptions = { active: true, lastFocusedWindow: true };
-  let [tab] = await chrome.tabs.query(queryOptions);
-  return tab;
+  tempUsageData = {}
 }
 
-function checkFocusState(){
-  chrome.windows.getLastFocused({ populate: false }, (window) => {
-    const isFocused = window.focused === true;
-    console.log("is focused:", isFocused);
-    if(!isFocused){
-      setCurrentUrl(null)
-    }
-    else{
-      getCurrentTab().then((tab) => {
-        setCurrentUrl(tab.url)
-      })
-    }
+function getCurrentTab() {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
+      resolve(tabs[0]);
+    });
   });
 }
 
+function checkFocusState() {
+  return new Promise((resolve, reject) => {
+    chrome.windows.getLastFocused({ populate: false }, (window) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(window.focused === true);
+      }
+    });
+  });
+}
 chrome.alarms.onAlarm.addListener((alarm) => {
   console.log("alarm running...")
-  checkFocusState()
-
+  migrateToStorage()
+  if (!intervalId) {
+    startInterval();
+  }
 });
 
 async function checkAlarmState() {
@@ -120,27 +107,12 @@ async function checkAlarmState() {
   if (!alarm) {
     await chrome.alarms.create(ALARM_NAME, { periodInMinutes: 0.5 });
   }
+
 }
 
-
-
-chrome.windows.onFocusChanged.addListener((windowId) => {
-  if (windowId === chrome.windows.WINDOW_ID_NONE) {
-    checkFocusState()
-    return;
-  }
-
-  chrome.tabs.query({ active: true, windowId }, (tabs) => {
-    const tab = tabs[0];
-    if (tab) {
-      console.log("focus back")
-      setCurrentUrl(tab.url)
-    }
-  });
-
-});
-
 chrome.runtime.onInstalled.addListener((details) => {
+  checkAlarmState();
+  startInterval();
   if (details.reason === "install") {
     console.log("installed...")
     const startTime = Date.now()
@@ -148,4 +120,21 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
+function startInterval() {
+  if (intervalId) return;
+  
+  intervalId = setInterval(() => {
+    checkFocusState().then((isFocused) => {
+      if(isFocused){
+        getCurrentTab().then((tab) => {
+          updateTempUsageData(getHostnameIfValid(tab.url), INTERVAL_TIME)
+        })
+      }
+    })
+  }, INTERVAL_TIME);
+}
 
+chrome.runtime.onStartup.addListener(() => {
+  checkAlarmState();
+  startInterval();
+});
