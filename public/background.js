@@ -1,9 +1,8 @@
 const ALARM_NAME = "tracker-alarm"
 const INTERVAL_TIME = 1000
 let tempUsageData = {}
+let tempUrlIcons = {}
 let intervalId = null;
-var currentUrl = null
-var activeSince = null
 
 function getWeekNumber(date) {
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
@@ -20,48 +19,50 @@ function getHostnameIfValid(url) {
   }
 }
 
-function updateTempUsageData(url,time){
+function updateTempUsageData(url, time, icon){
   if(url === null || time === null || time > 35000) return;
   tempUsageData[url] = (tempUsageData[url]|| 0) + time;
+  if(icon) tempUrlIcons[url] = icon
 }
 
-function updateStorage(url, time){
+function updateStorage(url, time, icon){
   
   console.log("saving " + url + " : "  + time)
   
   chrome.storage.local.get("usageData", (result) => {
     const date = new Date();
     const day = date.getDate();
-    const week = getWeekNumber(date);
-    const month = date.getMonth();
     const timestamp = date.getTime();
 
     let usageData = result.usageData || {
-      dailyUsage: {},
-      weeklyUsage: {},
-      monthlyUsage: {},
+      last30Days : [{}],
       allTimeUsage: {},
       timestamp: timestamp
     };
   
     const lastDate = new Date(usageData.timestamp);
+    const daysSinceLastUpdate = Math.floor((timestamp - lastDate.getTime()) / (1000 * 60 * 60 * 24));
 
-    const updateScope = (scope, check) => {
-      if (check) {
-        usageData[scope] = {}
-      };
-      usageData[scope][url] = (usageData[scope][url] || 0) + time;
-    };
-  
-    updateScope("dailyUsage", lastDate.getDate() !== day);
-    updateScope("weeklyUsage", getWeekNumber(lastDate) !== week);
-    updateScope("monthlyUsage", lastDate.getMonth() !== month);
-  
+    for(let i = 0; i < daysSinceLastUpdate; i++){
+      usageData.last30Days.unshift({});
+      if(usageData.last30Days.length > 30){
+        usageData.last30Days.pop()
+      }
+    }
+
+    usageData.last30Days[0][url]  = (usageData.last30Days[0][url] || 0) + time;
     usageData.allTimeUsage[url] = (usageData.allTimeUsage[url] || 0) + time;
   
     usageData.timestamp = timestamp;
   
     chrome.storage.local.set({ usageData }, () => {});
+  });
+
+  if(!icon) return;
+  chrome.storage.local.get("urlIcons", (result) => {
+    let urlIcons = result.urlIcons || {};
+    urlIcons[url] = urlIcons[url] || icon
+    chrome.storage.local.set({ urlIcons }, () => {});
   });
   
 }
@@ -69,7 +70,7 @@ function updateStorage(url, time){
 function migrateToStorage(){
   const urls = Object.keys(tempUsageData)
   for(let i = 0; i < urls.length; i++){
-    updateStorage(urls[i],tempUsageData[urls[i]])
+    updateStorage(urls[i], tempUsageData[urls[i]], tempUrlIcons[urls[i]])
   }
   tempUsageData = {}
 }
@@ -127,7 +128,7 @@ function startInterval() {
     checkFocusState().then((isFocused) => {
       if(isFocused){
         getCurrentTab().then((tab) => {
-          updateTempUsageData(getHostnameIfValid(tab.url), INTERVAL_TIME)
+          updateTempUsageData(getHostnameIfValid(tab.url), INTERVAL_TIME, tab.favIconUrl)
         })
       }
     })
