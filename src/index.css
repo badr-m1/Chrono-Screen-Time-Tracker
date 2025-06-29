@@ -75,19 +75,30 @@ button:focus-visible {
   background-color: #242424;
   color: #ffffff;
 }
+
+ul {
+  list-style-type: none;
+  padding-left: 0; /* optional: removes indentation */
+}
+
 .list-container{
   padding: 0;
   margin: 0;
 }
 
 .list-item{
+  display: flex;
   border-top: 0.1rem solid #c8c7cd;
   padding: 0.5rem 0;
+  height: 1rem;
+  width: 100%;
+  gap: 0.5rem;
 }
 
 .item-info{
   display: flex;
   justify-content: space-between;
+  width: 100%;
 }
 
 .extra-stats{
@@ -122,4 +133,10 @@ button:focus-visible {
 .clear-data-btn:hover{
   background-color: #e53935;
   color: #ffffff;
+}
+
+.icon{
+  height: 100%;
+  width: auto;
+  vertical-align: text-bottom;
 }

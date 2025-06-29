@@ -1,33 +1,65 @@
+import { getCalendarDayDiff } from "./utils.js"
+
 const ALARM_NAME = "tracker-alarm"
 const INTERVAL_TIME = 1000
 let tempUsageData = {}
 let tempUrlIcons = {}
 let intervalId = null;
 
-function getWeekNumber(date) {
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = Math.floor((date - firstDayOfYear) / 86400000);
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
-
 function getHostnameIfValid(url) {
   try {
     const parsedUrl = new URL(url);
-    return parsedUrl.hostname; // e.g., "example.com"
+    return parsedUrl.hostname;
   } catch (e) {
-    return null; // invalid URL
+    return null;
   }
 }
 
-function updateTempUsageData(url, time, icon){
+function updateTempUsageData(url, time, favIconUrl){
   if(url === null || time === null || time > 35000) return;
   tempUsageData[url] = (tempUsageData[url]|| 0) + time;
-  if(icon) tempUrlIcons[url] = icon
+  tempUrlIcons[url] = favIconUrl
 }
 
-function updateStorage(url, time, icon){
+async function fetchImageAsDataURL(imageUrl) {
+  try {
+    const res = await fetch(imageUrl);
+    if(!res.ok) return null
+
+    const contentType = res.headers.get('Content-Type');
+    
+    if(!contentType || !contentType.startsWith('image/')) return null
+
+    const blob = await res.blob();
+
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result); // Data URL
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+    
+  }catch (error) {
+    // Network or CORS error
+    console.error(`Fetch error for ${url}:`, error);
+    return null;
+  }
+}
+
+
+async function updateIcons(urlIcons){
+  for(let url of Object.keys(tempUrlIcons)){
+    if(!urlIcons[url]){
+      urlIcons[url] = await fetchImageAsDataURL(tempUrlIcons[url])
+    }
+  }
+  chrome.storage.local.set({ urlIcons }, () => {tempUrlIcons = {}});
+}
+
+function updateStorage(){
   
-  console.log("saving " + url + " : "  + time)
+  console.log("saving :") 
+  console.log(tempUsageData)
   
   chrome.storage.local.get("usageData", (result) => {
     const date = new Date();
@@ -39,9 +71,8 @@ function updateStorage(url, time, icon){
       allTimeUsage: {},
       timestamp: timestamp
     };
-  
-    const lastDate = new Date(usageData.timestamp);
-    const daysSinceLastUpdate = Math.floor((timestamp - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    const daysSinceLastUpdate = getCalendarDayDiff(timestamp, usageData.timestamp)
 
     for(let i = 0; i < daysSinceLastUpdate; i++){
       usageData.last30Days.unshift({});
@@ -50,29 +81,20 @@ function updateStorage(url, time, icon){
       }
     }
 
-    usageData.last30Days[0][url]  = (usageData.last30Days[0][url] || 0) + time;
-    usageData.allTimeUsage[url] = (usageData.allTimeUsage[url] || 0) + time;
-  
+    for(let url of Object.keys(tempUsageData)){
+      usageData.last30Days[0][url]  = (usageData.last30Days[0][url] || 0) + tempUsageData[url];
+      usageData.allTimeUsage[url] = (usageData.allTimeUsage[url] || 0) + tempUsageData[url]; 
+    }
     usageData.timestamp = timestamp;
   
-    chrome.storage.local.set({ usageData }, () => {});
+    chrome.storage.local.set({ usageData }, () => { tempUsageData = {} });
   });
 
-  if(!icon) return;
   chrome.storage.local.get("urlIcons", (result) => {
     let urlIcons = result.urlIcons || {};
-    urlIcons[url] = urlIcons[url] || icon
-    chrome.storage.local.set({ urlIcons }, () => {});
+    updateIcons(urlIcons)
   });
   
-}
-
-function migrateToStorage(){
-  const urls = Object.keys(tempUsageData)
-  for(let i = 0; i < urls.length; i++){
-    updateStorage(urls[i], tempUsageData[urls[i]], tempUrlIcons[urls[i]])
-  }
-  tempUsageData = {}
 }
 
 function getCurrentTab() {
@@ -95,9 +117,10 @@ function checkFocusState() {
     });
   });
 }
+
 chrome.alarms.onAlarm.addListener((alarm) => {
   console.log("alarm running...")
-  migrateToStorage()
+  updateStorage()
   if (!intervalId) {
     startInterval();
   }
