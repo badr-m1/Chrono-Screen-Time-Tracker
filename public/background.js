@@ -1,4 +1,4 @@
-import { getCalendarDayDiff } from "./utils.js"
+import {bulkUpdateUsageData} from "./usageDataService.js"
 
 const ALARM_NAME = "tracker-alarm"
 const INTERVAL_TIME = 1000
@@ -21,80 +21,9 @@ function updateTempUsageData(url, time, favIconUrl){
   tempUrlIcons[url] = favIconUrl
 }
 
-async function fetchImageAsDataURL(imageUrl) {
-  try {
-    const res = await fetch(imageUrl);
-    if(!res.ok) return null
-
-    const contentType = res.headers.get('Content-Type');
-    
-    if(!contentType || !contentType.startsWith('image/')) return null
-
-    const blob = await res.blob();
-
-    return await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result); // Data URL
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-    
-  }catch (error) {
-    // Network or CORS error
-    console.error(`Fetch error for ${url}:`, error);
-    return null;
-  }
-}
-
-
-async function updateIcons(urlIcons){
-  for(let url of Object.keys(tempUrlIcons)){
-    if(!urlIcons[url]){
-      urlIcons[url] = await fetchImageAsDataURL(tempUrlIcons[url])
-    }
-  }
-  chrome.storage.local.set({ urlIcons }, () => {tempUrlIcons = {}});
-}
-
-function updateStorage(){
-  
-  console.log("saving :") 
-  console.log(tempUsageData)
-  
-  chrome.storage.local.get("usageData", (result) => {
-    const date = new Date();
-    const day = date.getDate();
-    const timestamp = date.getTime();
-
-    let usageData = result.usageData || {
-      last30Days : [{}],
-      allTimeUsage: {},
-      timestamp: timestamp
-    };
-
-    const daysSinceLastUpdate = getCalendarDayDiff(timestamp, usageData.timestamp)
-
-    for(let i = 0; i < daysSinceLastUpdate; i++){
-      usageData.last30Days.unshift({});
-      if(usageData.last30Days.length > 30){
-        usageData.last30Days.pop()
-      }
-    }
-
-    for(let url of Object.keys(tempUsageData)){
-      usageData.last30Days[0][url]  = (usageData.last30Days[0][url] || 0) + tempUsageData[url];
-      usageData.allTimeUsage[url] = (usageData.allTimeUsage[url] || 0) + tempUsageData[url]; 
-    }
-    usageData.timestamp = timestamp;
-  
-    chrome.storage.local.set({ usageData }, () => { tempUsageData = {} });
-  });
-
-  chrome.storage.local.get("urlIcons", (result) => {
-    let urlIcons = result.urlIcons || {};
-    updateIcons(urlIcons)
-  });
-  
+async function updateStorage(){
+  const entries = Object.keys(tempUsageData).map( (url) => ({url:url, time:tempUsageData[url], iconUrl: tempUrlIcons[url]}))
+  bulkUpdateUsageData(entries)
 }
 
 function getCurrentTab() {
@@ -138,7 +67,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   checkAlarmState();
   startInterval();
   if (details.reason === "install") {
-    console.log("installed...")
+    console.log("installed.")
     const startTime = Date.now()
     chrome.storage.local.set({ startTime:startTime }, () => {});
   }

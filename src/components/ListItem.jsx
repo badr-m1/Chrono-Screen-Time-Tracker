@@ -1,4 +1,5 @@
 import StaticBar from "./staticBar";
+import { useState, useEffect } from 'react'
 import { formatTime } from "../../public/utils";
 
 const lightThemeColors = [
@@ -23,6 +24,7 @@ const darkThemeColors = [
   { background: "#6B7280", text: "#FFFFFF" }
 ];
 
+
 function generateDefaultIconDataUrl(letter = '?', color) {
     return <svg width="64" height="64" viewBox="0 0 64 64" className="icon">
       <rect width="100%" height="100%" fill={color.background} rx="8" />
@@ -35,19 +37,24 @@ function generateDefaultIconDataUrl(letter = '?', color) {
 
 function ListItem({url, time, icon, total}){
     if(url == '') return null
-    let IconElement = null 
-    if(!icon){
-        let letter = ((url.split('.').length > 2) ? url.split('.')[1][0] : url.split('.')[0][0])
-        let color = lightThemeColors[letter.charCodeAt(0) % lightThemeColors.length]
-        IconElement = generateDefaultIconDataUrl(letter, color)
-    }
-    else{
-        IconElement = <img src={icon} className="icon"></img>
-    }
+    const letter = ((url.split('.').length > 2) ? url.split('.')[1][0] : url.split('.')[0][0])
+    const color = lightThemeColors[letter.charCodeAt(0) % lightThemeColors.length]
+    const [iconElement, setIconElement] = useState(generateDefaultIconDataUrl(letter, color)) 
+
+    useEffect(() => {
+        if(icon && icon instanceof Blob){
+            let url = URL.createObjectURL(icon);
+            setIconElement(<img src={url} className="icon" onError={() => setIconElement(generateDefaultIconDataUrl(letter, color))}></img>)
+            return () => {
+                URL.revokeObjectURL(url)
+            }
+        }
+    }, [])
+
 
     return (
     <li className="list-item">
-        {IconElement}
+        {iconElement}
         <div style={{width: '100%'}}>
             <div className='item-info'>
                 <span>{url}</span> 

@@ -38,11 +38,6 @@ export function getCalendarDayDiff(t1, t2){
   return Math.abs((date2 - date1) / msInDay);
 }
 
-export function getObjectSize(obj) {
-  const json = JSON.stringify(obj);
-  return new TextEncoder().encode(json).length; // size in bytes
-}
-
 export function formatSize(byteSize){
   const units = ['B', 'KB', 'MB', 'GB'];
   let i = 0;
