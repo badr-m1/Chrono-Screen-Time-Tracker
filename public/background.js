@@ -1,9 +1,9 @@
 import {bulkUpdateUsageData} from "./usageDataService.js"
 
 const ALARM_NAME = "tracker-alarm"
+const ALARM_TIME = 2
 const INTERVAL_TIME = 1000
-let tempUsageData = {}
-let tempUrlIcons = {}
+let usageData = {}
 let intervalId = null;
 
 function getHostnameIfValid(url) {
@@ -15,15 +15,15 @@ function getHostnameIfValid(url) {
   }
 }
 
-function updateTempUsageData(url, time, favIconUrl){
+function updateUsageData(url, time, favIconUrl){
   if(url === null || time === null || time > 35000) return;
-  tempUsageData[url] = (tempUsageData[url]|| 0) + time;
-  tempUrlIcons[url] = favIconUrl
+  usageData[url] = {time: (usageData[url]?.time || 0) + time, iconUrl: favIconUrl};
 }
 
 async function updateStorage(){
-  const entries = Object.keys(tempUsageData).map( (url) => ({url:url, time:tempUsageData[url], iconUrl: tempUrlIcons[url]}))
-  bulkUpdateUsageData(entries)
+  const entries = Object.keys(usageData).map( (url) => ({url:url, time:usageData[url].time, iconUrl: usageData[url].iconUrl}))
+  await bulkUpdateUsageData(entries)
+  usageData = {}
 }
 
 function getCurrentTab() {
@@ -47,29 +47,18 @@ function checkFocusState() {
   });
 }
 
-chrome.alarms.onAlarm.addListener((alarm) => {
-  console.log("alarm running...")
-  updateStorage()
-  if (!intervalId) {
-    startInterval();
-  }
-});
-
 async function checkAlarmState() {
   const alarm = await chrome.alarms.get(ALARM_NAME);
   if (!alarm) {
-    await chrome.alarms.create(ALARM_NAME, { periodInMinutes: 0.5 });
+    await chrome.alarms.create(ALARM_NAME, { periodInMinutes: ALARM_TIME });
   }
 
 }
 
-chrome.runtime.onInstalled.addListener((details) => {
-  checkAlarmState();
-  startInterval();
-  if (details.reason === "install") {
-    console.log("installed.")
-    const startTime = Date.now()
-    chrome.storage.local.set({ startTime:startTime }, () => {});
+chrome.alarms.onAlarm.addListener((alarm) => {
+  updateStorage()
+  if (!intervalId) {
+    startInterval();
   }
 });
 
@@ -80,7 +69,7 @@ function startInterval() {
     checkFocusState().then((isFocused) => {
       if(isFocused){
         getCurrentTab().then((tab) => {
-          updateTempUsageData(getHostnameIfValid(tab.url), INTERVAL_TIME, tab.favIconUrl)
+          updateUsageData(getHostnameIfValid(tab.url), INTERVAL_TIME, tab.favIconUrl)
         })
       }
     })
@@ -90,4 +79,19 @@ function startInterval() {
 chrome.runtime.onStartup.addListener(() => {
   checkAlarmState();
   startInterval();
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  checkAlarmState();
+  startInterval();
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log(message.type)
+  if (message.type === "update_request") {
+    updateStorage().then(result => {
+      sendResponse("update_complete");
+    })
+  }
+  return true;
 });

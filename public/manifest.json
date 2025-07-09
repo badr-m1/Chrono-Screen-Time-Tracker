@@ -2,7 +2,7 @@
     "name": "Time Tracker",
     "version": "0.1.0",
     "description": "Tracking browser usage time",
-    "permissions": ["storage", "tabs", "alarms"],
+    "permissions": ["storage", "tabs", "alarms", "scripting"],
     "host_permissions": ["http://*/*","https://*/*"],
     "background": {
       "service_worker": "background.js",

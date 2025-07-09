@@ -15,6 +15,8 @@ function DBDashboard(props) {
   const [usageData, setUsageData] = useState({records:[], totaTime: 0})
   const [displayLimit, setDisplayLimit] = useState(5)
   const [appStorageStats, setAppStorageStats] = useState({usage: 0, quota: 0})
+
+  
   function clearData() {
     clearUsageData()
   }
@@ -35,18 +37,15 @@ function DBDashboard(props) {
   }, [scope])
 
   useEffect(() => {
+    chrome.runtime.sendMessage({ type: "update_request", text: "Hello from content script" }, (response) => {
+      if(response == "update_complete"){
+        let maxDate = (scope!= Infinity) ? Date.now() - (1000*60*60*24*scope) : scope
 
-    let maxDate = (scope!= Infinity) ? Date.now() - (1000*60*60*24*scope) : scope
+        getUsageData(displayLimit, maxDate).then(result =>{
+          setUsageData(result)
+        })
 
-    getUsageData(displayLimit, maxDate).then(result =>{
-      result.records.map(r => {
-        if(!r.icon) return 
-        r.icon.arrayBuffer().then(buffer => {
-          console.log(r.url)
-          console.log(new Uint8Array(buffer)); // raw bytes
-        });  
-      })
-      setUsageData(result)
+      }
     })
 
   }, [scope, displayLimit])
