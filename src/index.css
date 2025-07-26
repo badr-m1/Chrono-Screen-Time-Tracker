@@ -1,142 +1,71 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@import "tailwindcss";
 
-  color-scheme: light dark;
-  color: #242424;
-  background-color:  #ffffff;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@theme{
+  --color-primary: RGB(23 23 23);        
+  --color-secondary: RGB(115 115 115);   
+  --color-background: RGB(250 250 250);  
+  --color-surface: RGB(255 255 255);     
+  --color-muted: RGB(163 163 163);       
+  --color-border: RGB(229 229 229);      
+  --color-accent: RGB(99 102 241);       
+  --color-accent-active: RGB(79 70 229); 
+  --color-accent-text: RGB(255 255 255); 
+  --color-success: RGB(16 185 129);      
+  --color-warning: RGB(245 158 11);      
+  --color-error: RGB(239 68 68);  
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 360px;
+@layer base {
+  [data-theme="light"] {
+    --color-primary: RGB(23 23 23);        
+    --color-secondary: RGB(115 115 115);   
+    --color-background: RGB(250 250 250);  
+    --color-surface: RGB(255 255 255);     
+    --color-muted: RGB(163 163 163);       
+    --color-border: RGB(229 229 229);      
+    --color-accent: RGB(99 102 241);       
+    --color-accent-active: RGB(79 70 229); 
+    --color-accent-text: RGB(255 255 255); 
+    --color-success: RGB(16 185 129);      
+    --color-warning: RGB(245 158 11);      
+    --color-error: RGB(239 68 68);         
+  }
+
+  [data-theme="dark"] {
+    --color-primary: RGB(245 245 245);     
+    --color-secondary: RGB(180 180 180);   
+    --color-background: RGB(23 23 23);     
+    --color-surface: RGB(38 38 38);        
+    --color-muted: RGB(163 163 163);       
+    --color-border: RGB(64 64 64);         
+    --color-accent: RGB(129 140 248);      
+    --color-accent-active: RGB(165 180 252);
+    --color-accent-text: RGB(23 23 23);    
+    --color-success: RGB(52 211 153);      
+    --color-warning: RGB(252 211 77);      
+    --color-error: RGB(248 113 113);       
+  }
+}
+
+:root {
+  @apply font-sans antialiased subpixel-antialiased;
+  @apply min-w-[360px];
+  @apply text-primary bg-background;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  
+  color-scheme: light dark;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  @apply text-[1em] leading-[1.1]
 }
+
 button {
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  color: #242424;
-  background-color:  #ffffff;
-  cursor: pointer;
-  transition: 0.3s ease;
+  @apply font-medium cursor-pointer transition-[0.3s] ease-in-out
 }
-/*
-
-button:hover{
-  border: 0.1rem solid #242424;
-}
-
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-*/
 
 #root {
-  margin: 0 auto;
-  padding: 1rem;
-  text-align: center;
-}
-
-.main{
-  display: flex grid;
-  gap: 0.5rem;
-}
-.navbar{
-  display: flex;
-  border: 0.1rem solid black;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  max-height: 2rem;
-}
-
-.tab{
-  border: none;
-  background-color: #ffffff;
-  color: #242424;
-}
-
-.active-tab{
-  border: none;
-  background-color: #242424;
-  color: #ffffff;
-}
-
-ul {
-  list-style-type: none;
-  padding-left: 0; /* optional: removes indentation */
-}
-
-.list-container{
-  padding: 0;
-  margin: 0;
-}
-
-.list-item{
-  display: flex;
-  border-top: 0.1rem solid #c8c7cd;
-  padding: 0.5rem 0;
-  height: 1rem;
-  width: 100%;
-  gap: 0.5rem;
-}
-
-.item-info{
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.extra-stats{
-  display: flex;
-  justify-content: space-between;
-  max-height: 1rem;
-  margin: 0.5rem;
-}
-
-.show-more-btn{
-  width: fit-content;
-  border-radius: 0.5rem;
-  background-color: #ffffff;
-  color: #242424;
-  border: 0.1rem, solid #242424;
-}
-
-.show-more-btn:hover{
-  background-color: #242424;
-  color: #ffffff;
-  transition: border-color 0.25s;
-}
-.clear-data-btn{
-  width: fit-content;
-  border-radius: 0.5rem;
-  background-color: #ffffff;
-  color: #242424;
-  border: 0.1rem, solid #242424;
-  margin-top: 0.5rem;
-}
-
-.clear-data-btn:hover{
-  background-color: #e53935;
-  color: #ffffff;
-}
-
-.icon{
-  height: 100%;
-  width: auto;
-  vertical-align: text-bottom;
+  @apply m-auto p-5 text-center grid gap-0.5
 }

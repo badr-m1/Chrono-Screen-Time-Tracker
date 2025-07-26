@@ -1,16 +1,10 @@
-function StaticBar({ value, color}){
+function StaticBar({value}){
     const width = Math.min((value / 1) * 100, 100);
 
     return (
-      <div style={{ width: '100%', height: '0.3rem' }}>
-        <div
-          style={{
-            width: `${width}%`,
-            height: '100%',
-            backgroundColor: color,
-            borderRadius: '0.5rem',
-          }}
-        />
+      <div className="w-full h-1.5 m-0.5">
+        <div className="bg-accent rounded-md h-full" style={{ width: `${width}%` }}/>
+
       </div>
     );
 }

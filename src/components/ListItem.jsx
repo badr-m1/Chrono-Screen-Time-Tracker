@@ -26,7 +26,7 @@ const darkThemeColors = [
 
 
 function generateDefaultIconDataUrl(letter = '?', color) {
-    return <svg width="64" height="64" viewBox="0 0 64 64" className="icon">
+    return <svg width="64" height="64" viewBox="0 0 64 64" className="h-[50%] w-auto align-text-bottom m-2">
       <rect width="100%" height="100%" fill={color.background} rx="8" />
       <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
             font-size="32" font-family="Arial, sans-serif" fill={color.text}>
@@ -44,7 +44,7 @@ function ListItem({url, time, icon, total}){
     useEffect(() => {
         if(icon && icon instanceof Blob){
             let url = URL.createObjectURL(icon);
-            setIconElement(<img src={url} className="icon" onError={() => setIconElement(generateDefaultIconDataUrl(letter, color))}></img>)
+            setIconElement(<img src={url} className='h-[50%] w-auto align-text-bottom m-2' onError={() => setIconElement(generateDefaultIconDataUrl(letter, color))}></img>)
             return () => {
                 URL.revokeObjectURL(url)
             }
@@ -53,14 +53,14 @@ function ListItem({url, time, icon, total}){
 
 
     return (
-    <li className="list-item">
+    <li className='flex border-t-1 border-primary px-0.5 h-8 w-full gap-0.5'>
         {iconElement}
         <div style={{width: '100%'}}>
-            <div className='item-info'>
+            <div className='flex justify-between w-full'>
                 <span>{url}</span> 
                 <span>{(time/total * 100 ).toFixed(1)}% - {formatTime(time)}</span>
             </div>
-            <StaticBar value={time/total} color={"#c8c7cd"} />
+            <StaticBar value={time/total} />
         </div>
     </li>
     );

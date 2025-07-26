@@ -1,34 +1,19 @@
-import { formatTime, getCalendarDayDiff, formatSize } from '../../public/utils.js';
-import { getUsageData, clearUsageData, getStartDate } from '../../public/usageDataService.js';
+import { formatTime, getCalendarDayDiff } from '../../public/utils.js';
+import { getUsageData, getStartDate } from '../../public/usageDataService.js';
 import { useState, useEffect } from 'react'
 import ListItem from './ListItem.jsx';
+import Tab from './Tab.jsx';
 
-async function getStorageSize(){
-  let estimate = await navigator.storage.estimate()
-  return estimate
-}
-
-function DBDashboard(props) {
+function Dashboard(props) {
   const scopes = { Infinity:"all time", 29: "Last Month", 6: "Last Week", 0: "Today" }
   const [scope, setScope] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
   const [usageData, setUsageData] = useState({records:[], totaTime: 0})
   const [displayLimit, setDisplayLimit] = useState(5)
-  const [appStorageStats, setAppStorageStats] = useState({usage: 0, quota: 0})
-
-  
-  function clearData() {
-    clearUsageData()
-  }
 
   useEffect(() => {
     getStartDate().then( result =>{
       setDaysActive(getCalendarDayDiff(result, Date.now()) + 1)
-    })
-
-    getStorageSize().then(result => {
-      console.log(result)
-      setAppStorageStats(result)
     })
   }, [])
 
@@ -68,35 +53,34 @@ function DBDashboard(props) {
 
 
   const tabs = Object.keys(scopes).map((k) =>
-    <button 
-    onClick={() => { setScope(k) }} 
-    className={(scope == k) ? 'active-tab' : 'tab'}>{scopes[k]}
-    </button>)
+    <Tab onClick={() => { setScope(k) }}  isActive={scope == k} text={scopes[k]}/>
+  )
 
   return (
-      <div className='ScreenTimeDashboard'>
-        <h2>Your screen time data</h2>
+      <div>
+        <h1 className='bg-background'>Your screen time data</h1>
 
-        <nav className='navbar'>
+        <nav className=' bg-black flex justify-around border-1 border-primary overflow-hidden max-h-10 rounded-sm'>
           {tabs}
         </nav>
+        
         {(usageData.records.length == 0) ? (<h2>There are no screen time tracking data</h2>) :
         (<>
-        <div className='extra-stats'>
+        <div className='flex justify-between h-5 m-0.5'>
           <span>total : {formatTime(totalTime)}</span>
           {scope != 0 && <span>Daily average: {formatTime(dailyAverage)}</span>}
         </div>
-        <ul className='list-container'>
+
+        <ul className>
           {listItems}
-          {otherTime > 0 && <button className='show-more-btn' onClick={() => setDisplayLimit((val) => val + 5)}>Show More</button>}
+          {otherTime > 0 && <button 
+          className="w-fit rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-accent hover:text-accent-text " 
+          onClick={() => setDisplayLimit((val) => val + 5)}>
+            Show More
+          </button>}
         </ul>
-
-        <button className="clear-data-btn" onClick={clearData}>Clear tracking data</button>
         </>)}
-
-        <br></br>
-        <span>Cached data: {formatSize(appStorageStats.usage)}</span>
       </div>
     );
 }
-export default DBDashboard
+export default Dashboard
