@@ -1,4 +1,5 @@
 import db from "./db.js"
+import { base64ToBlob, blobToBase64 } from "./utils.js";
 const ALL_TIME_KEY = "__allTime__";
 
 function getDayTimestampLocal(date = new Date()) {
@@ -162,6 +163,16 @@ export async function getUsageData(limit = 5, maxDate = Infinity){
   }
 }
 
+export async function getSearchPredictions(searchTerm) {
+  if(searchTerm == "") return []
+
+  let records = await db.allTimeUsage
+  .filter(item => item.url.includes(searchTerm))
+  .toArray()
+
+  return records;
+}
+
 export async function getStartDate(){
   let record = await db.dailyUsage
   .orderBy("date")
@@ -171,6 +182,65 @@ export async function getStartDate(){
   return  record[0]?.date || Date.now()
 }
 
-export async function clearUsageData(){
-  await db.delete();
+export async function clearAllUsageData(){
+  db.delete();
+
+  db.version(1).stores({
+    allTimeUsage: `&url, time, icon`,
+    dailyUsage: `&[url+date], url, date, time`,
+    usageTotals: '&date, totalTime'
+  });
+  
+  await db.open(); 
+}
+
+export async function deleteDomainUsageData(url){
+  await db.allTimeUsage
+  .where("url")
+  .equals(url)
+  .delete()
+  .then(function (deleteCount) {
+      console.log( "Deleted " + deleteCount + " objects");
+  });
+
+  await db.dailyUsage
+  .where("url")
+  .equals(url)
+  .delete()
+  .then(function (deleteCount) {
+      console.log( "Deleted " + deleteCount + " objects");
+  });
+
+}
+
+export async function exportDBtoJSON() {
+  const tables = db.tables;
+  const dbData = {};
+
+
+  for (const table of tables) {
+    dbData[table.name] = await table.toArray();
+    for(let i = 0; i < dbData[table.name].length; i++){
+      if(!dbData[table.name][i].icon) continue
+
+      dbData[table.name][i].icon = await blobToBase64(dbData[table.name][i].icon)
+      
+    }
+  }
+
+  return JSON.stringify(dbData, null, 2); 
+}
+
+export async function importDBfromJSON(jsonData) {
+  console.log(jsonData)
+  await clearAllUsageData()
+  for(let i = 0; i < jsonData.allTimeUsage.length; i++){
+    if(!jsonData.allTimeUsage[i].icon) continue
+    jsonData.allTimeUsage[i].icon = await base64ToBlob(jsonData.allTimeUsage[i].icon)
+  }
+  const promises = []
+  promises.push(db.allTimeUsage.bulkPut(jsonData.allTimeUsage))
+  promises.push(db.dailyUsage.bulkPut(jsonData.dailyUsage))
+  promises.push(db.usageTotals.bulkPut(jsonData.usageTotals))
+  await Promise.all(promises);
 }

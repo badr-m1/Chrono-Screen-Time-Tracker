@@ -1,5 +1,6 @@
 import Dexie from "./libs/dexie.mjs";
 
+
 const db = new Dexie('UsageDataDB');
 
 db.version(1).stores({

@@ -6,17 +6,17 @@ function App() {
   const [viewSettings, SetViewSettings] = useState(false)
 
    useEffect(() => {
-      const savedTheme = localStorage.getItem('theme');
-      
-      if(savedTheme){
-        document.documentElement.setAttribute('data-theme', savedTheme);
-      }
-      else{
-        const defaultTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        document.documentElement.setAttribute('data-theme', defaultTheme)
-      }
+    const savedTheme = localStorage.getItem('theme');
+    
+    if(savedTheme){
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    else{
+      const defaultTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      document.documentElement.setAttribute('data-theme', defaultTheme)
+    }
 
-    }, []);
+  }, []);
 
   return (
     <>
