@@ -2,7 +2,7 @@ import { useState } from "react";
 
 
 function SearchBar({ suggestionsCallBack, onValueChange, placeholder }) {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 

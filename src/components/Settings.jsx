@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef  } from "react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import SearchBar from "./SearchBar.jsx";
-import { formatSize } from '../../public/utils.js';
-import { clearAllUsageData, deleteDomainUsageData, getSearchPredictions, exportDBtoJSON, importDBfromJSON } from '../../public/usageDataService.js';
+import { formatSize } from "../../public/utils.js";
+import { clearAllUsageData, deleteDomainUsageData, getSearchPredictions, exportDBtoJSON, importDBfromJSON } from "../../public/usageDataService.js";
 
 async function getStorageSize(){
   let estimate = await navigator.storage.estimate()
@@ -11,9 +11,9 @@ async function getStorageSize(){
 
 
 function downloadJSON(json, filename) {
-  const blob = new Blob([json], { type: 'application/json' });
+  const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
   a.download = filename;
   a.click();
@@ -39,7 +39,7 @@ unsure:
 
 function Settings(){
     const [appStorageStats, setAppStorageStats] = useState({usage: 0, quota: 0})
-    const [searchValue, setSearchValue] = useState('')
+    const [searchValue, setSearchValue] = useState("")
     const fileInputRef = useRef(null);
 
     const handleButtonClick = () => {
@@ -56,13 +56,13 @@ function Settings(){
       <div className="flex flex-col">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">Settings</h1>
 
-        <div className='border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2'>
+        <div className="border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Appearance</h1>
           <ThemeSwitcher/>
         </div>
 
 
-        <div className='flex flex-col items-center border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2'>
+        <div className="flex flex-col items-center border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Data management </h1>
           <div className="flex justify-between w-full">
             <span className="flex">Clear data for a specific domain: </span>

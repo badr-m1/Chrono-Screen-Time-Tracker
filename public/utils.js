@@ -48,7 +48,6 @@ export function formatSize(byteSize){
   return `${byteSize.toFixed(2)} ${units[i]}`;
 }
 
-
 export function blobToBase64(blob) {
   return new Promise((resolve) => {
     const reader = new FileReader();

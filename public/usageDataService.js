@@ -110,57 +110,64 @@ export async function bulkUpdateUsageData(entries) {
   await Promise.all(promises);
 }
 
+export async function getAllTImeUsageData(limit = 5){
 
-export async function getUsageData(limit = 5, maxDate = Infinity){
+  let records = await db.allTimeUsage
+  .orderBy("time")
+  .reverse()
+  .limit(limit)
+  .toArray()
 
-  if(maxDate == Infinity){
-    let records = await db.allTimeUsage
-    .orderBy("time")
-    .reverse()
-    .limit(limit)
-    .toArray()
+  let dailyTotals = await db.usageTotals
+  .where("date")
+  .aboveOrEqual(targetDate)
+  .toArray()
 
-    let totals = await db.usageTotals.get(ALL_TIME_KEY)// date == 0 denotes all time usage total
-    let total = totals.totalTime
+  dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
 
-    return {records: records, totalTime: total}
+  let alltime = await db.usageTotals.get(ALL_TIME_KEY)
+  let total = alltime.totalTime
+
+  return {records: records, totalTime: total, dailyTotals:dailyTotals}
+}
+
+export async function getUsageData(limit = 5, maxDate = Date.now()){
+
+  const targetDate = getDayTimestampLocal(new Date(maxDate))
+
+  let records = await db.dailyUsage
+  .where("date")
+  .aboveOrEqual(targetDate)
+  .toArray()
+
+  let dailyTotals = await db.usageTotals
+  .where("date")
+  .aboveOrEqual(targetDate)
+  .toArray()
+
+  dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
+  let total = dailyTotals.reduce((acc, record) => acc + record.totalTime, 0)
+
+  //sort records and get their icons from the "allTimeUsage" table
+  let reduced = {}
+  records.forEach(({ url, time }) => {
+    reduced[url] = (reduced[url] || 0) + time;
+  });
+
+  const metas = await Promise.all( Object.keys(reduced).map(url => db.allTimeUsage.get(url)))
+  let iconsMap = {}
+
+  for(let m of metas){
+    if(m) iconsMap[m.url] = m.icon
   }
-  else{
-    const targetDate = getDayTimestampLocal(new Date(maxDate))
-    let records = await db.dailyUsage
-    .where("date")
-    .aboveOrEqual(targetDate)
-    .toArray()
 
-    let totals = await db.usageTotals
-    .where("date")
-    .aboveOrEqual(targetDate)
-    .toArray()
-    totals = totals.filter((entry) => entry.date != ALL_TIME_KEY)
+  records = Object.entries(reduced)
+  .map(([url, time]) => ({url: url, time: time, icon: iconsMap[url] || null}) )
+  .sort((a,b) => b.time - a.time)
 
-    let total = totals.reduce((acc, record) => acc + record.totalTime, 0)
+  records = records.slice(0, limit)
 
-    //sort records and get their icons from the "allTimeUsage" table
-    let reduced = {}
-
-    records.forEach(({ url, time }) => {
-      reduced[url] = (reduced[url] || 0) + time;
-    });
-
-    const metas = await Promise.all( Object.keys(reduced).map(url => db.allTimeUsage.get(url)))
-
-    let iconsMap = {}
-
-    for(let m of metas){
-      if(m) iconsMap[m.url] = m.icon
-    }
-
-    records = Object.entries(reduced)
-    .map(([url, time]) => ({url: url, time: time, icon: iconsMap[url] || null}) )
-    .sort((a,b) => b.time - a.time)
-    records = records.slice(0, limit)
-    return {records: records, totalTime: total}
-  }
+  return {records: records, totalTime: total, dailyTotals: dailyTotals}
 }
 
 export async function getSearchPredictions(searchTerm) {
@@ -183,15 +190,10 @@ export async function getStartDate(){
 }
 
 export async function clearAllUsageData(){
-  db.delete();
-
-  db.version(1).stores({
-    allTimeUsage: `&url, time, icon`,
-    dailyUsage: `&[url+date], url, date, time`,
-    usageTotals: '&date, totalTime'
-  });
-  
-  await db.open(); 
+  const tables = db.tables;
+  for(const table of tables){
+    table.clear()
+  }
 }
 
 export async function deleteDomainUsageData(url){
