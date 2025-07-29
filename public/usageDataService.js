@@ -81,22 +81,40 @@ export async function bulkUpdateUsageData(entries) {
   promises.push(db.dailyUsage.bulkPut(dailyPuts))
 
 
-  const allTimeKeys = entries.map(entry => entry.url)
-  const allTimeRecords = await db.allTimeUsage.bulkGet(allTimeKeys);
+  const entryUrls = entries.map(entry => entry.url)
+
+  const allTimeRecords = await db.allTimeUsage.bulkGet(entryUrls);
 
   const allTimePuts = []
+
   for(let i = 0; i < entries.length; i++){
     const entry = entries[i]
     const record = allTimeRecords[i]
     if(record){
-      allTimePuts.push({url: record.url, time: record.time + entry.time, icon: record.icon})
+      allTimePuts.push({url: record.url, time: record.time + entry.time})
     }
     else{
-      allTimePuts.push({url: entry.url, time: entry.time, icon: await fetchImageAsBlob(entry.iconUrl)})
+      allTimePuts.push({url: entry.url, time: entry.time})
     }
   }
-  
+
   promises.push(db.allTimeUsage.bulkPut(allTimePuts))
+
+  const cachedIconRecords = await db.faviconCache.bulkGet(entryUrls)
+  const faviconCachePuts = []
+
+  for(let i = 0; i < entries.length; i++){
+    const entry = entries[i]
+    const record = cachedIconRecords[i]
+    if(record){
+      faviconCachePuts.push({url: record.url, icon: record.icon})
+    }
+    else{
+      faviconCachePuts.push({url: entry.url,  icon: await fetchImageAsBlob(entry.iconUrl)})
+    }
+  }
+
+  promises.push(db.faviconCache.bulkPut(faviconCachePuts))
 
 
   const totalTime = entries.reduce((acc, entry) => acc + entry.time, 0)
@@ -112,21 +130,35 @@ export async function bulkUpdateUsageData(entries) {
 
 export async function getAllTImeUsageData(limit = 5){
 
-  let records = await db.allTimeUsage
+  const usageData = await db.allTimeUsage
   .orderBy("time")
   .reverse()
   .limit(limit)
   .toArray()
 
-  let dailyTotals = await db.usageTotals
+  const urls = usageData.map(record => record.url)
+
+  const cachedIcons = db.faviconCache.bulkGet(urls)
+  const records = []
+  for(let i = 0; i < cachedIcons.length; i++){
+    const cachedIcon = cachedIcons[i]
+    const entry = usageData[i]
+    if(cachedIcon){
+      records.push({url: entry.url, time:entry.time, icon:cachedIcon.icon})
+    }
+    else{
+      records.push({url: entry.url, time:entry.time, icon:null})
+    }
+  }
+
+  const dailyTotals = await db.usageTotals
   .where("date")
   .aboveOrEqual(targetDate)
   .toArray()
+  .filter((entry) => entry.date != ALL_TIME_KEY)
 
-  dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
-
-  let alltime = await db.usageTotals.get(ALL_TIME_KEY)
-  let total = alltime.totalTime
+  const alltime = await db.usageTotals.get(ALL_TIME_KEY)
+  const total = alltime.totalTime
 
   return {records: records, totalTime: total, dailyTotals:dailyTotals}
 }
@@ -148,13 +180,14 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
   dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
   let total = dailyTotals.reduce((acc, record) => acc + record.totalTime, 0)
 
+  //rewrite the section below to look more like the rest of the code 
   //sort records and get their icons from the "allTimeUsage" table
   let reduced = {}
   records.forEach(({ url, time }) => {
     reduced[url] = (reduced[url] || 0) + time;
   });
 
-  const metas = await Promise.all( Object.keys(reduced).map(url => db.allTimeUsage.get(url)))
+  const metas = await Promise.all( Object.keys(reduced).map(url => db.faviconCache.get(url)))
   let iconsMap = {}
 
   for(let m of metas){
@@ -197,6 +230,22 @@ export async function clearAllUsageData(){
 }
 
 export async function deleteDomainUsageData(url){
+  const allTimeRecord = await db.allTimeUsage.get(url)
+  const records = await db.dailyUsage
+  .where("url")
+  .equals(url)
+  .toArray()
+
+  const dates = records.map(r => r.date)
+  
+  const totals = await db.usageTotals.bulkGet(dates)
+  const allTimeTotal = await db.usageTotals.get(ALL_TIME_KEY)
+  
+  const updatedAllTimeTotal = {date:ALL_TIME_KEY , totalTime:allTimeTotal.totalTime - allTimeRecord.time}
+  const updatedTotals = totals.map((rec, i)=> ({date: rec.date, totalTime:rec.totalTime - records[i].time}))
+
+  await db.usageTotals.bulkPut([...updatedTotals, updatedAllTimeTotal])
+
   await db.allTimeUsage
   .where("url")
   .equals(url)
@@ -221,20 +270,14 @@ export async function exportDBtoJSON() {
 
 
   for (const table of tables) {
+    if(table.name == "faviconCache") continue;
     dbData[table.name] = await table.toArray();
-    for(let i = 0; i < dbData[table.name].length; i++){
-      if(!dbData[table.name][i].icon) continue
-
-      dbData[table.name][i].icon = await blobToBase64(dbData[table.name][i].icon)
-      
-    }
   }
 
   return JSON.stringify(dbData, null, 2); 
 }
 
 export async function importDBfromJSON(jsonData) {
-  console.log(jsonData)
   await clearAllUsageData()
   for(let i = 0; i < jsonData.allTimeUsage.length; i++){
     if(!jsonData.allTimeUsage[i].icon) continue
