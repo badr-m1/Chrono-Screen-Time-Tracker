@@ -135,10 +135,8 @@ export async function getAllTImeUsageData(limit = 5){
   .reverse()
   .limit(limit)
   .toArray()
-
   const urls = usageData.map(record => record.url)
-
-  const cachedIcons = db.faviconCache.bulkGet(urls)
+  const cachedIcons = await db.faviconCache.bulkGet(urls)
   const records = []
   for(let i = 0; i < cachedIcons.length; i++){
     const cachedIcon = cachedIcons[i]
@@ -151,11 +149,10 @@ export async function getAllTImeUsageData(limit = 5){
     }
   }
 
-  const dailyTotals = await db.usageTotals
-  .where("date")
-  .aboveOrEqual(targetDate)
+  let dailyTotals = await db.usageTotals
   .toArray()
-  .filter((entry) => entry.date != ALL_TIME_KEY)
+  dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
+  
 
   const alltime = await db.usageTotals.get(ALL_TIME_KEY)
   const total = alltime.totalTime

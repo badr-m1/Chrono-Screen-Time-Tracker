@@ -11,7 +11,6 @@ function Dashboard(props) {
   const [daysActive, setDaysActive] = useState(0)
   const [usageData, setUsageData] = useState({records:[], totaTime: 0, dailyTotals:[]})
   const [displayLimit, setDisplayLimit] = useState(5)
-
   useEffect(() => {
     getStartDate().then( result =>{
       setDaysActive(getCalendarDayDiff(result, Date.now()) + 1)
@@ -28,7 +27,10 @@ function Dashboard(props) {
 
         if(scope == Infinity){
 
-          getAllTImeUsageData(displayLimit).then( result => setUsageData(result))
+          getAllTImeUsageData(displayLimit).then( result =>{
+            console.log(result)
+            setUsageData(result)
+          })
         }
         else{
 
