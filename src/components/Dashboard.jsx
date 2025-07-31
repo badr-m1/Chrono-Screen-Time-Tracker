@@ -7,10 +7,12 @@ import DailyDataChart from "./DailyDataChart.jsx";
 
 function Dashboard(props) {
   const scopes = { Infinity:"all time", 29: "Last Month", 6: "Last Week", 0: "Today" }
+
   const [scope, setScope] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
   const [usageData, setUsageData] = useState({records:[], totaTime: 0, dailyTotals:[]})
   const [displayLimit, setDisplayLimit] = useState(5)
+
   useEffect(() => {
     getStartDate().then( result =>{
       setDaysActive(getCalendarDayDiff(result, Date.now()) + 1)
@@ -63,11 +65,8 @@ function Dashboard(props) {
 
   const dailyAverage = totalTime / scopeDays
 
-
-  const tabs = Object.keys(scopes).map((k) =>
-    <Tab onClick={() => { setScope(k) }}  isActive={scope == k} text={scopes[k]}/>
-  )
-
+  const tabs = Object.keys(scopes)
+  .map((k) => <Tab onClick={() => { setScope(k) }}  isActive={scope == k} text={scopes[k]}/>)
   return (
       <div>
         <h1 className="bg-background">Your screen time data</h1>
@@ -81,7 +80,7 @@ function Dashboard(props) {
           <span>total : {formatTime(totalTime)}</span>
           {scope != 0 && <span>Daily average: {formatTime(dailyAverage)}</span>}
         </div>
-        <DailyDataChart dailyData={usageData.dailyTotals} scope={scope}/>
+        <DailyDataChart dailyData={usageData.dailyTotals} scope={Number(scope)}/>
 
         <ul className>
           {listItems}
