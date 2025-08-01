@@ -1,5 +1,4 @@
 import db from "./db.js"
-import { base64ToBlob, blobToBase64 } from "./utils.js";
 const ALL_TIME_KEY = "__allTime__";
 
 function getDayTimestampLocal(date = new Date()) {
@@ -18,128 +17,94 @@ async function fetchImageAsBlob(imageUrl) {
     return await res.blob();
     
   }catch (error) {
-    // Network or CORS error
     console.error(`Fetch error for ${imageUrl}:`, error);
     return null;
   }
-}
-
-export async function updateUsageData(url, time, timestamp, favIconUrl) {
-  const date = getDayTimestampLocal(new Date(timestamp));
-  const promises = [];
-  const dailyRecord = await db.dailyUsage.get([url, date]);
-  if (!dailyRecord) {
-    promises.push(db.dailyUsage.put({ url, date, time }));
-  } else {
-    promises.push(db.dailyUsage.update([url, date], { time: time + (dailyRecord?.time || 0) }));
-  }
-
-  const allTimeRecord = await db.allTimeUsage.get(url);
-  if (!allTimeRecord) {
-    const icon = (favIconUrl != null) ? await fetchImageAsBlob(favIconUrl) : null
-    promises.push(db.allTimeUsage.put({ url, time, icon }));
-  } else {
-    promises.push(db.allTimeUsage.update(url, { time: time + (allTimeRecord?.time || 0) }));
-  }
-
-  const allTimeTotal = await db.usageTotals.get(ALL_TIME_KEY);
-  const todaysTotal = await db.usageTotals.get(date);
-
-  if (!allTimeTotal) {
-    promises.push(db.usageTotals.put({ date: ALL_TIME_KEY, totalTime: time }));
-  } else {
-    promises.push(db.usageTotals.update(ALL_TIME_KEY, { totalTime: allTimeTotal.totalTime + time }));
-  }
-
-  if (!todaysTotal) {
-    promises.push(db.usageTotals.put({ date, totalTime: time }));
-  } else {
-    promises.push(db.usageTotals.update(date, { totalTime: todaysTotal.totalTime + time }));
-  }
-
-  await Promise.all(promises);
 }
 
 export async function bulkUpdateUsageData(entries) {
   const date = getDayTimestampLocal(new Date(Date.now()));
   const promises = [];
 
-  const dailyKeys = entries.map(entry => [entry.url, date])
-  const dailyRecords = await db.dailyUsage.bulkGet(dailyKeys);
-  const dailyPuts = []
+  //updating websiteDailyUsage table
+  const dailyUsageKeys = entries.map(entry => [entry.url, date])
+  const dailyUsageRecords = await db.websiteDailyUsage.bulkGet(dailyUsageKeys);
+  const dailyUsagePuts = []
 
   entries.forEach((entry, index) =>{
-    const record = dailyRecords[index]
+    const record = dailyUsageRecords[index]
     if(record){
-      dailyPuts.push({url: record.url, date:date, time: record.time + entry.time})
+      dailyUsagePuts.push({url: record.url, date:date, time: record.time + entry.time})
     }
     else{
-      dailyPuts.push({url: entry.url, date:date, time: entry.time})
+      dailyUsagePuts.push({url: entry.url, date:date, time: entry.time})
     }
   })
 
-  promises.push(db.dailyUsage.bulkPut(dailyPuts))
+  promises.push(db.websiteDailyUsage.bulkPut(dailyUsagePuts))
 
 
+  //updating websiteTotalUsage table
   const entryUrls = entries.map(entry => entry.url)
-
-  const allTimeRecords = await db.allTimeUsage.bulkGet(entryUrls);
-
-  const allTimePuts = []
+  const totalUsageRecords = await db.websiteTotalUsage.bulkGet(entryUrls);
+  const totalUsagePuts = []
 
   for(let i = 0; i < entries.length; i++){
     const entry = entries[i]
-    const record = allTimeRecords[i]
+    const record = totalUsageRecords[i]
     if(record){
-      allTimePuts.push({url: record.url, time: record.time + entry.time})
+      totalUsagePuts.push({url: record.url, time: record.time + entry.time})
     }
     else{
-      allTimePuts.push({url: entry.url, time: entry.time})
+      totalUsagePuts.push({url: entry.url, time: entry.time})
     }
   }
 
-  promises.push(db.allTimeUsage.bulkPut(allTimePuts))
+  promises.push(db.websiteTotalUsage.bulkPut(totalUsagePuts))
 
-  const cachedIconRecords = await db.faviconCache.bulkGet(entryUrls)
-  const faviconCachePuts = []
+  // updating the websiteIcons table
+  const iconRecords = await db.websiteIcons.bulkGet(entryUrls)
+  const iconPuts = []
 
   for(let i = 0; i < entries.length; i++){
     const entry = entries[i]
-    const record = cachedIconRecords[i]
+    const record = iconRecords[i]
     if(record){
-      faviconCachePuts.push({url: record.url, icon: record.icon})
+      iconPuts.push({url: record.url, icon: record.icon})
     }
     else{
-      faviconCachePuts.push({url: entry.url,  icon: await fetchImageAsBlob(entry.iconUrl)})
+      iconPuts.push({url: entry.url,  icon: await fetchImageAsBlob(entry.iconUrl)})
     }
   }
 
-  promises.push(db.faviconCache.bulkPut(faviconCachePuts))
+  promises.push(db.websiteIcons.bulkPut(iconPuts))
 
-
+  //updating the dailyScreenTime table
   const totalTime = entries.reduce((acc, entry) => acc + entry.time, 0)
 
-  const allTimeTotal = (await db.usageTotals.get(ALL_TIME_KEY))?.totalTime;
-  const todaysTotal = (await db.usageTotals.get(date))?.totalTime;
+  const allTimeTotal = (await db.dailyScreenTime.get(ALL_TIME_KEY))?.totalTime;
+  const todaysTotal = (await db.dailyScreenTime.get(date))?.totalTime;
 
-  promises.push(db.usageTotals.put({ date: ALL_TIME_KEY, totalTime: (allTimeTotal || 0) + totalTime }));
-  promises.push(db.usageTotals.put({ date:date, totalTime: (todaysTotal || 0 ) + totalTime }));
+  promises.push(db.dailyScreenTime.put({ date: ALL_TIME_KEY, totalTime: (allTimeTotal || 0) + totalTime }));
+  promises.push(db.dailyScreenTime.put({ date:date, totalTime: (todaysTotal || 0 ) + totalTime }));
 
   await Promise.all(promises);
 }
 
-export async function getAllTImeUsageData(limit = 5){
+export async function getwebsiteTotalUsageData(limit = 5){
 
-  const usageData = await db.allTimeUsage
+  const usageData = await db.websiteTotalUsage
   .orderBy("time")
   .reverse()
   .limit(limit)
   .toArray()
+
   const urls = usageData.map(record => record.url)
-  const cachedIcons = await db.faviconCache.bulkGet(urls)
+  const icons = await db.websiteIcons.bulkGet(urls)
   const records = []
-  for(let i = 0; i < cachedIcons.length; i++){
-    const cachedIcon = cachedIcons[i]
+
+  for(let i = 0; i < icons.length; i++){
+    const cachedIcon = icons[i]
     const entry = usageData[i]
     if(cachedIcon){
       records.push({url: entry.url, time:entry.time, icon:cachedIcon.icon})
@@ -149,12 +114,12 @@ export async function getAllTImeUsageData(limit = 5){
     }
   }
 
-  let dailyTotals = await db.usageTotals
+  let dailyTotals = await db.dailyScreenTime
   .toArray()
   dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
   
 
-  const alltime = await db.usageTotals.get(ALL_TIME_KEY)
+  const alltime = await db.dailyScreenTime.get(ALL_TIME_KEY)
   const total = alltime.totalTime
 
   return {records: records, totalTime: total, dailyTotals:dailyTotals}
@@ -164,12 +129,12 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
 
   const targetDate = getDayTimestampLocal(new Date(maxDate))
 
-  let records = await db.dailyUsage
+  let usageData = await db.websiteDailyUsage
   .where("date")
   .aboveOrEqual(targetDate)
   .toArray()
 
-  let dailyTotals = await db.usageTotals
+  let dailyTotals = await db.dailyScreenTime
   .where("date")
   .aboveOrEqual(targetDate)
   .toArray()
@@ -177,25 +142,32 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
   dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
   let total = dailyTotals.reduce((acc, record) => acc + record.totalTime, 0)
 
-  //rewrite the section below to look more like the rest of the code 
-  //sort records and get their icons from the "allTimeUsage" table
+  //reduce the array and add up all dublicates into unique elements
   let reduced = {}
-  records.forEach(({ url, time }) => {
+  usageData.forEach(({ url, time }) => {
     reduced[url] = (reduced[url] || 0) + time;
   });
 
-  const metas = await Promise.all( Object.keys(reduced).map(url => db.faviconCache.get(url)))
-  let iconsMap = {}
-
-  for(let m of metas){
-    if(m) iconsMap[m.url] = m.icon
-  }
-
-  records = Object.entries(reduced)
-  .map(([url, time]) => ({url: url, time: time, icon: iconsMap[url] || null}) )
+  //sort the reduced list
+  usageData = Object.entries(reduced)
+  .map(([url, time]) => ({url: url, time: time}) )
   .sort((a,b) => b.time - a.time)
 
-  records = records.slice(0, limit)
+  //get the icons 
+  const urls = usageData.map(record => record.url)
+  const icons = await db.websiteIcons.bulkGet(urls)
+  const records = []
+  
+  for(let i = 0; i < limit; i++){
+    const cachedIcon = icons[i]
+    const entry = usageData[i]
+    if(cachedIcon){
+      records.push({url: entry.url, time:entry.time, icon:cachedIcon.icon})
+    }
+    else{
+      records.push({url: entry.url, time:entry.time, icon:null})
+    }
+  }
 
   return {records: records, totalTime: total, dailyTotals: dailyTotals}
 }
@@ -203,7 +175,7 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
 export async function getSearchPredictions(searchTerm) {
   if(searchTerm == "") return []
 
-  let records = await db.allTimeUsage
+  let records = await db.websiteTotalUsage
   .filter(item => item.url.includes(searchTerm))
   .toArray()
 
@@ -211,7 +183,7 @@ export async function getSearchPredictions(searchTerm) {
 }
 
 export async function getStartDate(){
-  let record = await db.dailyUsage
+  let record = await db.websiteDailyUsage
   .orderBy("date")
   .limit(1)
   .toArray()
@@ -227,23 +199,23 @@ export async function clearAllUsageData(){
 }
 
 export async function deleteDomainUsageData(url){
-  const allTimeRecord = await db.allTimeUsage.get(url)
-  const records = await db.dailyUsage
+  const allTimeRecord = await db.websiteTotalUsage.get(url)
+  const records = await db.websiteDailyUsage
   .where("url")
   .equals(url)
   .toArray()
 
   const dates = records.map(r => r.date)
   
-  const totals = await db.usageTotals.bulkGet(dates)
-  const allTimeTotal = await db.usageTotals.get(ALL_TIME_KEY)
+  const totals = await db.dailyScreenTime.bulkGet(dates)
+  const allTimeTotal = await db.dailyScreenTime.get(ALL_TIME_KEY)
   
   const updatedAllTimeTotal = {date:ALL_TIME_KEY , totalTime:allTimeTotal.totalTime - allTimeRecord.time}
   const updatedTotals = totals.map((rec, i)=> ({date: rec.date, totalTime:rec.totalTime - records[i].time}))
 
-  await db.usageTotals.bulkPut([...updatedTotals, updatedAllTimeTotal])
+  await db.dailyScreenTime.bulkPut([...updatedTotals, updatedAllTimeTotal])
 
-  await db.allTimeUsage
+  await db.websiteTotalUsage
   .where("url")
   .equals(url)
   .delete()
@@ -251,7 +223,7 @@ export async function deleteDomainUsageData(url){
       console.log( "Deleted " + deleteCount + " objects");
   });
 
-  await db.dailyUsage
+  await db.websiteDailyUsage
   .where("url")
   .equals(url)
   .delete()
@@ -267,7 +239,7 @@ export async function exportDBtoJSON() {
 
 
   for (const table of tables) {
-    if(table.name == "faviconCache") continue;
+    if(table.name == "websiteIcons") continue;
     dbData[table.name] = await table.toArray();
   }
 
@@ -276,13 +248,9 @@ export async function exportDBtoJSON() {
 
 export async function importDBfromJSON(jsonData) {
   await clearAllUsageData()
-  for(let i = 0; i < jsonData.allTimeUsage.length; i++){
-    if(!jsonData.allTimeUsage[i].icon) continue
-    jsonData.allTimeUsage[i].icon = await base64ToBlob(jsonData.allTimeUsage[i].icon)
-  }
   const promises = []
-  promises.push(db.allTimeUsage.bulkPut(jsonData.allTimeUsage))
-  promises.push(db.dailyUsage.bulkPut(jsonData.dailyUsage))
-  promises.push(db.usageTotals.bulkPut(jsonData.usageTotals))
+  promises.push(db.websiteTotalUsage.bulkPut(jsonData.websiteTotalUsage))
+  promises.push(db.websiteDailyUsage.bulkPut(jsonData.websiteDailyUsage))
+  promises.push(db.dailyScreenTime.bulkPut(jsonData.dailyScreenTime))
   await Promise.all(promises);
 }

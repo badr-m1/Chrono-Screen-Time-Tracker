@@ -86,21 +86,26 @@ function DailyDataChart({dailyData, scope}){
     .map((v,idx) => 
     <div 
         key={`g${idx}`} 
-        className="absolute left-0 right-0 h-[1px] bg-muted"
+        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 items-center h-[1px] bg-muted"
         style={{ top: `${(idx * 100) / (maxValue / div)}%` }}
         ></div>)
 
     const n = gridLines.length
 
-    const yAxisLables = gridLines.map((v,idx) => <span key={`l${idx}`} className="font-extralight text-[12px]">{(n-(idx+1)) * div}h</span>)
-    
+    const yAxisLables = gridLines
+    .map((_,idx) => 
+    <div className="flex relative justify-center items-center">
+        <span key={`l${idx}`} className="absolute top-1/2 -translate-y-1/2 items-center text-[12px]">{(n-(idx+1)) * div}h</span>
+    </div>)
+
+
     return (
-    <div className="flex w-full h-50 bg-background text-primary border-border border-2 mb-4 rounded-md overflow-hidden">
-        <div className="flex flex-col justify-between border-border border-r-1 h-[90%] w-[6%]">
+    <div className="flex w-full h-50 bg-background text-primary border-border border-2 mb-4 rounded-md overflow-hidden pt-2">
+        <div className="flex flex-col justify-between h-[90%] w-[8%]">
             {yAxisLables}
         </div>
         <div className="flex flex-col w-full h-full">
-            <div className="relative flex w-full h-[90%]">
+            <div className="relative flex w-full border-muted border-l-1 border-b-1 h-[90%]">
                 {bars}
                 <div className="absolute inset-0 flex flex-col justify-between z-0">
                     {gridLines}

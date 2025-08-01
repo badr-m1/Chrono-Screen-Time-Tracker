@@ -1,5 +1,5 @@
 import { formatTime, getCalendarDayDiff } from "../../public/utils.js";
-import { getUsageData, getStartDate, getAllTImeUsageData } from "../../public/usageDataService.js";
+import { getUsageData, getStartDate, getwebsiteTotalUsageData } from "../../public/usageDataService.js";
 import { useState, useEffect } from "react"
 import ListItem from "./ListItem.jsx";
 import Tab from "./Tab.jsx";
@@ -29,7 +29,7 @@ function Dashboard(props) {
 
         if(scope == Infinity){
 
-          getAllTImeUsageData(displayLimit).then( result =>{
+          getwebsiteTotalUsageData(displayLimit).then( result =>{
             console.log(result)
             setUsageData(result)
           })
