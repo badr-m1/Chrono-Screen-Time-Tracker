@@ -1,26 +1,14 @@
 import { useEffect, useState, useRef  } from "react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import SearchBar from "./SearchBar.jsx";
+import RestoreDBData from "./RestoreDBData.jsx";
+import BackupDBData from "./BackupDBData.jsx";
 import { formatSize } from "../../public/utils.js";
-import { clearAllUsageData, deleteDomainUsageData, getSearchPredictions, exportDBtoJSON, importDBfromJSON } from "../../public/usageDataService.js";
+import { clearAllUsageData, deleteDomainUsageData, getSearchPredictions, exportDBtoJSON, importDBfromData } from "../../public/usageDataService.js";
 
 async function getStorageSize(){
   let estimate = await navigator.storage.estimate()
   return estimate
-}
-
-
-function downloadJSON(json, filename) {
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-}
-
-async function handleBackup(){
-  exportDBtoJSON().then(json => downloadJSON(json, "backup.json"))
 }
 
 /*
@@ -40,12 +28,7 @@ unsure:
 function Settings(){
     const [appStorageStats, setAppStorageStats] = useState({usage: 0, quota: 0})
     const [searchValue, setSearchValue] = useState("")
-    const fileInputRef = useRef(null);
-
-    const handleButtonClick = () => {
-    fileInputRef.current.click(); // Trigger file input click
-    };
-
+    
     useEffect(() =>{
         getStorageSize().then(result => {
           setAppStorageStats(result)
@@ -86,40 +69,11 @@ function Settings(){
             Clear all data
 
           </button>
-          <button 
-            className="w-40 rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-warning hover:text-accent-text m-1" 
-            onClick={handleBackup}
-            >
-            Back up to file..
-          </button>
-          <button 
-            className="w-40 rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-warning hover:text-accent-text m-1" 
-            onClick={handleButtonClick}
-            >
-            Restore from file..
-          </button>
+          
+          <BackupDBData/>
 
-          <input 
-          type="file" 
-          ref={fileInputRef}
-          id="jsonFileInput" 
-          accept=".json" 
-          placeholder="Restore from file.."
-          className="h-0 w-0 opacity-0 absolute" 
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              const fileContent = event.target.result
-              const jsonData = JSON.parse(fileContent)
-              importDBfromJSON(jsonData)
-            }
-            reader.readAsText(file)
-  
-          }}
-          />
-
+          <RestoreDBData/>
+        
         </div>
      
       </div>

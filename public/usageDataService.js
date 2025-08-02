@@ -175,7 +175,7 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
 export async function getSearchPredictions(searchTerm) {
   if(searchTerm == "") return []
 
-  let records = await db.websiteTotalUsage
+  const records = await db.websiteTotalUsage
   .filter(item => item.url.includes(searchTerm))
   .toArray()
 
@@ -192,10 +192,13 @@ export async function getStartDate(){
 }
 
 export async function clearAllUsageData(){
-  const tables = db.tables;
-  for(const table of tables){
-    table.clear()
-  }
+  db.websiteTotalUsage.clear()
+  db.websiteDailyUsage.clear()
+  db.dailyScreenTime.clear()
+}
+
+export async function clearIconsCache(){
+  db.websiteIcons.clear()
 }
 
 export async function deleteDomainUsageData(url){
@@ -211,7 +214,7 @@ export async function deleteDomainUsageData(url){
   const allTimeTotal = await db.dailyScreenTime.get(ALL_TIME_KEY)
   
   const updatedAllTimeTotal = {date:ALL_TIME_KEY , totalTime:allTimeTotal.totalTime - allTimeRecord.time}
-  const updatedTotals = totals.map((rec, i)=> ({date: rec.date, totalTime:rec.totalTime - records[i].time}))
+  const updatedTotals = totals.map((rec, i)=> ({date: rec.date, totalTime:rec.totalTime - (records[i]?.time || 0) }))
 
   await db.dailyScreenTime.bulkPut([...updatedTotals, updatedAllTimeTotal])
 
@@ -246,11 +249,11 @@ export async function exportDBtoJSON() {
   return JSON.stringify(dbData, null, 2); 
 }
 
-export async function importDBfromJSON(jsonData) {
+export async function importDBfromData(data) {
   await clearAllUsageData()
   const promises = []
-  promises.push(db.websiteTotalUsage.bulkPut(jsonData.websiteTotalUsage))
-  promises.push(db.websiteDailyUsage.bulkPut(jsonData.websiteDailyUsage))
-  promises.push(db.dailyScreenTime.bulkPut(jsonData.dailyScreenTime))
+  promises.push(db.websiteTotalUsage.bulkPut(data.websiteTotalUsage))
+  promises.push(db.websiteDailyUsage.bulkPut(data.websiteDailyUsage))
+  promises.push(db.dailyScreenTime.bulkPut(data.dailyScreenTime))
   await Promise.all(promises);
 }
