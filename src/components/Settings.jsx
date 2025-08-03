@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef  } from "react";
-import ThemeSwitcher from "./ThemeSwitcher";
-import SearchBar from "./SearchBar.jsx";
-import RestoreDBData from "./RestoreDBData.jsx";
-import BackupDBData from "./BackupDBData.jsx";
+import ThemeSwitcher from "./settingsComponents/ThemeSwitcher";
+import SearchBar from "./settingsComponents/SearchBar.jsx";
+import RestoreData from "./settingsComponents/RestoreData.jsx";
+import BackupData from "./settingsComponents/BackupData.jsx";
+import ClearData from "./settingsComponents/ClearData.jsx";
 import { formatSize } from "../../public/utils.js";
-import { clearAllUsageData, deleteDomainUsageData, getSearchPredictions, exportDBtoJSON, importDBfromData } from "../../public/usageDataService.js";
+import { deleteDomainUsageData, getSearchPredictions, clearAllUsageData, clearIconsCache } from "../../public/usageDataService.js";
 
 async function getStorageSize(){
   let estimate = await navigator.storage.estimate()
@@ -37,7 +38,7 @@ function Settings(){
     
     return (
       <div className="flex flex-col">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">Settings</h1>
+        
 
         <div className="border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Appearance</h1>
@@ -48,7 +49,7 @@ function Settings(){
         <div className="flex flex-col items-center border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Data management </h1>
           <div className="flex justify-between w-full">
-            <span className="flex">Clear data for a specific domain: </span>
+            <span className="flex text-nowrap text-center items-center m-2">Clear data for a specific domain: </span>
             <SearchBar suggestionsCallBack={getSearchPredictions} onValueChange={setSearchValue} placeholder={"Domain name"}/>
           </div>
 
@@ -61,18 +62,12 @@ function Settings(){
 
           
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mt-2">Cached data: {formatSize(appStorageStats.usage)}</h1>
-          
-          <button 
-            className="w-40 rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-warning hover:text-accent-text m-1" 
-            onClick={clearAllUsageData}
-            >
-            Clear all data
 
-          </button>
-          
-          <BackupDBData/>
+          <ClearData text={"Clear all usage data"} callback={clearAllUsageData}/>
+          <ClearData text={"Clear all cached icons "} callback={clearIconsCache}/>
+          <BackupData/>
 
-          <RestoreDBData/>
+          <RestoreData/>
         
         </div>
      

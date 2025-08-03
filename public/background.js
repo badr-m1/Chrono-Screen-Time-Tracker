@@ -87,7 +87,6 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log(message.type)
   if (message.type === "update_request") {
     updateStorage().then(result => {
       sendResponse("update_complete");

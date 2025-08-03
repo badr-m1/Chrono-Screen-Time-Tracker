@@ -42,13 +42,11 @@ function determineMaxValueAndDiv(val){
 }
 
 function DailyDataChart({dailyData, scope}){
-    console.log("scope: ", scope+1)
     if(scope == 0 || scope == Infinity) return;
 
     const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a,b) => b.date - a.date)
     const entries = normalizeData(sorted, scope+1)
-    console.log("scope: ", scope+1)
-    console.log(entries.length)
+
     const values = entries.map(entry => entry.totalTime)
     const [maxValue, div] = determineMaxValueAndDiv( Math.ceil(Math.max(...values)  / (60*60*1000)) )
     const maxValueInMillis = maxValue * (60*60*1000)

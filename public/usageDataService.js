@@ -22,6 +22,28 @@ async function fetchImageAsBlob(imageUrl) {
   }
 }
 
+async function getWebsiteIcons(urls) {
+  const cachedIcons = await db.websiteIcons.bulkGet(urls);
+  const missingUrls = urls.filter((url, index) => !cachedIcons[index]);
+  const fetchPromises = missingUrls.map(url => 
+    fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${url}&sz=64`)
+    .then(icon => ({ url:url, icon:icon }))
+    .catch(() => ({ url:url, icon: null })))
+
+  const fetchedIcons = await Promise.all(fetchPromises);
+  db.websiteIcons.bulkPut(fetchedIcons);
+
+  let idx = 0
+
+  const icons = cachedIcons.map(record => {
+    if(record) return record
+    idx++
+    return fetchedIcons[idx-1]
+  })
+  return icons;
+}
+
+
 export async function bulkUpdateUsageData(entries) {
   const date = getDayTimestampLocal(new Date(Date.now()));
   const promises = [];
@@ -100,10 +122,10 @@ export async function getwebsiteTotalUsageData(limit = 5){
   .toArray()
 
   const urls = usageData.map(record => record.url)
-  const icons = await db.websiteIcons.bulkGet(urls)
+  const icons = await getWebsiteIcons(urls)
   const records = []
 
-  for(let i = 0; i < icons.length; i++){
+  for(let i = 0; i < usageData.length; i++){
     const cachedIcon = icons[i]
     const entry = usageData[i]
     if(cachedIcon){
@@ -153,12 +175,16 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
   .map(([url, time]) => ({url: url, time: time}) )
   .sort((a,b) => b.time - a.time)
 
+  //exclude anything outside the limit
+  usageData = usageData.slice(0, limit);
+
   //get the icons 
   const urls = usageData.map(record => record.url)
-  const icons = await db.websiteIcons.bulkGet(urls)
   const records = []
+  const icons = await getWebsiteIcons(urls)
+  console.log(icons)
   
-  for(let i = 0; i < limit; i++){
+  for(let i = 0; i < usageData.length; i++){
     const cachedIcon = icons[i]
     const entry = usageData[i]
     if(cachedIcon){

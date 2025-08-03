@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react"
-import Message from "./Message.jsx";
-import Confirm from "./Confirm.jsx";
-import { importDBfromData } from "../../public/usageDataService.js";
+import Message from "../dialogs/Message.jsx";
+import Confirm from "../dialogs/Confirm.jsx";
+import { importDBfromData } from "../../../public/usageDataService.js";
 import { z } from "zod"
 
 const DBDataSchema = z.object({
@@ -15,7 +15,7 @@ function validateDBData(input) {
 }
 
 
-function RestoreDBData(){
+function RestoreData(){
   const [msgVisibility, setMsgVisibility] = useState(false)
   const [msgText, setMsgText] = useState("")
   const handleMessage = (msg) =>{
@@ -46,7 +46,7 @@ function RestoreDBData(){
       const fileContent = event.target.result
       const jsonData = JSON.parse(fileContent) 
       if(validateDBData(jsonData)){
-        handleConfirm("Are you sure you want to replace your usage data with the given file?", () => () => importDBfromData(jsonData) )
+        handleConfirm("All existing usage data will be overwritten are you sure?", () => () => importDBfromData(jsonData) )
       }
       else{
         handleMessage("invalid backup data")
@@ -76,4 +76,4 @@ function RestoreDBData(){
         />
   </>)
 }
-export default RestoreDBData
+export default RestoreData

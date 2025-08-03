@@ -5,14 +5,14 @@ import ListItem from "./ListItem.jsx";
 import Tab from "./Tab.jsx";
 import DailyDataChart from "./DailyDataChart.jsx";
 
-function Dashboard(props) {
+function Dashboard() {
   const scopes = { Infinity:"all time", 29: "Last Month", 6: "Last Week", 0: "Today" }
 
   const [scope, setScope] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
   const [usageData, setUsageData] = useState({records:[], totaTime: 0, dailyTotals:[]})
   const [displayLimit, setDisplayLimit] = useState(5)
-  console.log(scope, usageData)
+
   useEffect(() => {
     getStartDate().then( result =>{
       setDaysActive(getCalendarDayDiff(result, Date.now()) + 1)
@@ -24,13 +24,12 @@ function Dashboard(props) {
   }, [scope])
 
   useEffect(() => {
-    chrome.runtime.sendMessage({ type: "update_request", text: "Hello from content script" }, (response) => {
+    chrome.runtime.sendMessage({ type: "update_request"}, (response) => {
       if(response == "update_complete"){
 
         if(scope == Infinity){
 
           getwebsiteTotalUsageData(displayLimit).then( result =>{
-            console.log(result)
             setUsageData(result)
           })
         }
@@ -38,7 +37,6 @@ function Dashboard(props) {
 
           const maxDate = Date.now() - (1000*60*60*24*scope)
           getUsageData(displayLimit, maxDate).then(result =>{
-            console.log(result)
             setUsageData(result)
           })
 
@@ -67,10 +65,9 @@ function Dashboard(props) {
 
   const tabs = Object.keys(scopes)
   .map((k) => <Tab onClick={() => { setScope(k) }}  isActive={scope == k} text={scopes[k]}/>)
+
   return (
       <div>
-        <h1 className="bg-background">Your screen time data</h1>
-
         <nav className=" bg-black flex justify-around border-1 border-primary overflow-hidden max-h-10 rounded-sm">
           {tabs}
         </nav>
@@ -80,6 +77,7 @@ function Dashboard(props) {
           <span>total : {formatTime(totalTime)}</span>
           {scope != 0 && <span>Daily average: {formatTime(dailyAverage)}</span>}
         </div>
+
         <DailyDataChart dailyData={usageData.dailyTotals} scope={Number(scope)}/>
 
         <ul className>

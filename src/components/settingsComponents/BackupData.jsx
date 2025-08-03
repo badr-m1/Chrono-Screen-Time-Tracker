@@ -1,6 +1,6 @@
-import { exportDBtoJSON } from "../../public/usageDataService.js";
+import { exportDBtoJSON } from "../../../public/usageDataService.js";
 
-function BackupDBData(){
+function BackupData(){
     
     function downloadJSON(json, filename) {
       const blob = new Blob([json], { type: "application/json" });
@@ -33,4 +33,4 @@ function BackupDBData(){
         </button>
     </>)
 }
-export default BackupDBData
+export default BackupData
