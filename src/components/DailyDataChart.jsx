@@ -28,7 +28,7 @@ function normalizeData(data, days){
 
 function determineMaxValueAndDiv(val){
     const threshholds = [{maxValue:8 , div:1}, {maxValue:19 , div:2}, {maxValue:20 , div:4}]
-    if (val > 8 && val % 2 !== 0) {
+    if (val % 2 !== 0) {
         val += 1;
     }
 
@@ -73,37 +73,48 @@ function DailyDataChart({dailyData, scope}){
 
         return (
         <div className="flex-1 flex relative justify-center mx-0.5 ">
-            <span className="absolute left-1/2 -translate-x-1/2 items-center text-center text-[10px] overflow-visible whitespace-nowrap flex flex-col">
-            {label != "" && <div className="bg-muted h-[5px] w-[2px]"></div>}
+            <span className="absolute text-base-content left-1/2 -translate-x-1/2 items-center text-center text-[10px] overflow-visible whitespace-nowrap flex flex-col">
+            {label != "" && <div className="bg-base-content h-[5px] w-[2px]"></div>}
             {label}
             </span>
         </div>)   
     })
+    
+    const n = (maxValue/div) + 1
 
-    const gridLines = Array((maxValue/div) + 1).fill(<></>)
-    .map((v,idx) => 
-    <div 
-        key={`g${idx}`} 
-        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 items-center h-[1px] bg-muted"
-        style={{ top: `${(idx * 100) / (maxValue / div)}%` }}
-        ></div>)
+    const gridLineCol = getComputedStyle(document.documentElement)
+  .getPropertyValue('--color-base-content').trim();
 
-    const n = gridLines.length
+    const gridLines = 
+    <svg className="absolute inset-0 w-full h-full"
+        shapeRendering="crispEdges">
+        {Array(n).fill(null).map((_, idx) => (
+        <rect
+          x="0"
+          y={`${Math.round((idx * 100) / (maxValue / div))}%`}
+          width="100%"
+          height="2" 
+          fill={gridLineCol}
+          shapeRendering="crispEdges"
+        />
+    ))}
+    </svg>
 
-    const yAxisLables = gridLines
-    .map((_,idx) => 
+    
+
+    const yAxisLables = Array(n).fill(null).map((_,idx) => 
     <div className="flex relative justify-center items-center">
-        <span key={`l${idx}`} className="absolute top-1/2 -translate-y-1/2 items-center text-[12px]">{(n-(idx+1)) * div}h</span>
+        <span key={`l${idx}`} className="absolute top-1/2 -translate-y-1/2 items-center text-[12px] text-base-content">{(n-(idx+1)) * div}h</span>
     </div>)
 
 
     return (
-    <div className="flex w-full h-50 bg-background text-primary border-border border-2 mb-4 rounded-md overflow-hidden pt-2">
+    <div className="flex w-full h-50 bg-base-100 text-base-content border-base-content border-0 mb-4 rounded-md overflow-hidden pt-2">
         <div className="flex flex-col justify-between h-[90%] w-[8%]">
             {yAxisLables}
         </div>
         <div className="flex flex-col w-full h-full">
-            <div className="relative flex w-full border-muted border-l-1 border-b-1 h-[90%]">
+            <div className="relative flex w-full border-base-content border-b-2 border-l-2  border-r-2 h-[90%]">
                 {bars}
                 <div className="absolute inset-0 flex flex-col justify-between z-0">
                     {gridLines}

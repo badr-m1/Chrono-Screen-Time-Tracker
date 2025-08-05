@@ -40,28 +40,28 @@ function Settings(){
       <div className="flex flex-col">
         
 
-        <div className="border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Appearance</h1>
+        <div className="border-t-1 border-base-content px-0.5 h-auto w-full gap-0.5 p-2">
+        <h1 className="text-4xl font-bold text-base-content">Appearance</h1>
           <ThemeSwitcher/>
         </div>
 
 
-        <div className="flex flex-col items-center border-t-1 border-primary px-0.5 h-auto w-full gap-0.5 p-2">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Data management </h1>
+        <div className="flex flex-col items-center border-t-1 border-base-content px-0.5 h-auto w-full gap-0.5 p-2">
+        <h1 className="text-4xl font-bold text-base-content">Data management </h1>
           <div className="flex justify-between w-full">
             <span className="flex text-nowrap text-center items-center m-2">Clear data for a specific domain: </span>
             <SearchBar suggestionsCallBack={getSearchPredictions} onValueChange={setSearchValue} placeholder={"Domain name"}/>
           </div>
 
           <button 
-            className="w-40 rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-warning hover:text-accent-text m-2" 
+            className="w-40 rounded-md px-2 py-2 bg-surface text-surface-content hover:bg-warning hover:text-warning-content hover:text-accent-text m-1" 
             onClick={() => deleteDomainUsageData(searchValue)}
             >
             Delete Domain Data
           </button>
 
           
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mt-2">Cached data: {formatSize(appStorageStats.usage)}</h1>
+          <h1 className="text-4xl font-bold text-base-content mt-2">Cached data: {formatSize(appStorageStats.usage)}</h1>
 
           <ClearData text={"Clear all usage data"} callback={clearAllUsageData}/>
           <ClearData text={"Clear all cached icons "} callback={clearIconsCache}/>

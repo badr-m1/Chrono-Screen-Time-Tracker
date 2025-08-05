@@ -1464,7 +1464,7 @@ var Table =  (function () {
         if (typeof keyOrObject === 'object' && !isArray(keyOrObject)) {
             var key = getByKeyPath(keyOrObject, this.schema.primKey.keyPath);
             if (key === undefined)
-                return rejection(new exceptions.InvalidArgument("Given object does not contain its primary key"));
+                return rejection(new exceptions.InvalidArgument("Given object does not contain its base-content key"));
             return this.where(":id").equals(key).modify(modifications);
         }
         else {
@@ -1578,7 +1578,7 @@ var Table =  (function () {
                             var value = changes[keyPath];
                             if (keyPath === _this.schema.primKey.keyPath) {
                                 if (cmp(value, key) !== 0) {
-                                    throw new exceptions.Constraint("Cannot update primary key in bulkUpdate()");
+                                    throw new exceptions.Constraint("Cannot update base-content key in bulkUpdate()");
                                 }
                             }
                             else {
@@ -3395,7 +3395,7 @@ function patchCurrentVersion(db, idbUpgradeTrans) {
     var diff = getSchemaDiff(globalSchema, db._dbSchema);
     var _loop_1 = function (tableChange) {
         if (tableChange.change.length || tableChange.recreate) {
-            console.warn("Unable to patch indexes of table ".concat(tableChange.name, " because it has changes on the type of index or primary key."));
+            console.warn("Unable to patch indexes of table ".concat(tableChange.name, " because it has changes on the type of index or base-content key."));
             return { value: void 0 };
         }
         var store = idbUpgradeTrans.objectStore(tableChange.name);
@@ -3443,7 +3443,7 @@ function updateTablesAndIndexes(db, oldVersion, trans, idbUpgradeTrans) {
             });
             diff.change.forEach(function (change) {
                 if (change.recreate) {
-                    throw new exceptions.Upgrade("Not yet support for changing primary key");
+                    throw new exceptions.Upgrade("Not yet support for changing base-content key");
                 }
                 else {
                     var store_1 = idbUpgradeTrans.objectStore(change.name);
@@ -3665,10 +3665,10 @@ var Version =  (function () {
                 var primKey = indexes.shift();
                 primKey.unique = true;
                 if (primKey.multi)
-                    throw new exceptions.Schema("Primary key cannot be multi-valued");
+                    throw new exceptions.Schema("base-content key cannot be multi-valued");
                 indexes.forEach(function (idx) {
                     if (idx.auto)
-                        throw new exceptions.Schema("Only primary key can be marked as autoIncrement (++)");
+                        throw new exceptions.Schema("Only base-content key can be marked as autoIncrement (++)");
                     if (!idx.keyPath)
                         throw new exceptions.Schema("Index must have a name and cannot be an empty string");
                 });

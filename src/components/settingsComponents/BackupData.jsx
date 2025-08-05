@@ -26,7 +26,7 @@ function BackupData(){
     return(
     <>
         <button 
-          className="w-40 rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-warning hover:text-accent-text m-1" 
+          className="w-40 rounded-md px-2 py-2 bg-surface text-surface-content hover:bg-warning hover:text-warning-content hover:text-accent-text m-1" 
           onClick={handleBackup}
           >
           Back up to file..

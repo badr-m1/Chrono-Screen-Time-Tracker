@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const themes = ["light", "dark"]; 
+const themes = ["light", "dark", "neutral light", "neutral dark"]; 
 
 export default function ThemeSwitcher() {
   const [currentTheme, setCurrentTheme] = useState(themes[0])
@@ -23,7 +23,6 @@ export default function ThemeSwitcher() {
 
   }, []);
   
-  console.log(currentTheme)
 
   const themeOptions = themes.map(theme => <option value={theme}>{theme}</option>)
   return (
@@ -34,7 +33,7 @@ export default function ThemeSwitcher() {
     data-setting-type="value" 
     onChange={(e) => setTheme(e.target.value)} 
     value={currentTheme}
-    className="bg-background text-primary px-4 py-1 border rounded-md ">
+    className="bg-base-200 text-base-content px-4 py-1 border rounded-md">
       {themeOptions}
     </select>
 

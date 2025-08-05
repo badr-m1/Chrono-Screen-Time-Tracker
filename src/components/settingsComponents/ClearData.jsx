@@ -10,7 +10,7 @@ function ClearData({text, callback}){
   <>
     {confirmVisibility && <Confirm text={"are you sure?"} onClose={() => setConfirmVisibility(false)} onConfirm={callback}/>}
     <button 
-      className="w-40 rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-warning hover:text-accent-text m-1" 
+      className="w-40 rounded-md px-2 py-2 bg-surface text-surface-content hover:bg-error hover:text-error-content hover:text-accent-text m-1" 
       onClick={() => setConfirmVisibility(true)}
       >
         {text}

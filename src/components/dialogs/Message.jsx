@@ -20,7 +20,7 @@ function Message({ text, duration = 1500, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="bg-background rounded-lg border-border border-3 popup-fade max-w-full max-h-full overflow-auto p-5">
+        <div className="bg-base-200 rounded-lg popup-fade max-w-full max-h-full overflow-auto p-10">
             {text}
         </div>
     </div>

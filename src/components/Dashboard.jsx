@@ -68,7 +68,7 @@ function Dashboard() {
 
   return (
       <div>
-        <nav className=" bg-black flex justify-around border-1 border-primary overflow-hidden max-h-10 rounded-sm">
+        <nav className=" bg-base-100 flex justify-around border-1 border-base-content overflow-hidden max-h-10 rounded-sm">
           {tabs}
         </nav>
         {(usageData.records.length == 0) ? (<h2>There are no screen time tracking data</h2>) :
@@ -83,7 +83,7 @@ function Dashboard() {
         <ul className>
           {listItems}
           {otherTime > 0 && <button 
-          className="w-fit rounded-md bg-background text-primary px-2 py-2 border-1 hover:bg-accent hover:text-accent-text " 
+          className="w-fit rounded-md px-2 py-2 bg-accent text-accent-content hover:bg-accent-active" 
           onClick={() => setDisplayLimit((val) => val + 5)}>
             Show More
           </button>}

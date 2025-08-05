@@ -1,56 +1,97 @@
 @import "tailwindcss";
 
 @theme{
-  --color-primary: RGB(23 23 23);        
-  --color-secondary: RGB(115 115 115);   
-  --color-background: RGB(250 250 250);  
-  --color-surface: RGB(255 255 255);     
-  --color-muted: RGB(163 163 163);       
-  --color-border: RGB(229 229 229);      
-  --color-accent: RGB(99 102 241);       
-  --color-accent-active: RGB(79 70 229); 
-  --color-accent-text: RGB(255 255 255); 
-  --color-success: RGB(16 185 129);      
-  --color-warning: RGB(245 158 11);      
-  --color-error: RGB(239 68 68);  
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(98% 0 0);
+  --color-base-content: oklch(21% 0.006 285.885);
+  --color-accent: oklch(45% 0.24 277.023);
+  --color-accent-active: oklch(35% 0.24 277.023);
+  --color-accent-content: oklch(93% 0.034 272.788);
+  --color-surface: oklch(14% 0.005 285.823);
+  --color-surface-content: oklch(92% 0.004 286.32);
+  --color-success: oklch(76% 0.177 163.223);
+  --color-success-content: oklch(37% 0.077 168.94);
+  --color-warning: oklch(82% 0.189 84.429);
+  --color-warning-content: oklch(41% 0.112 45.904);
+  --color-error: oklch(71% 0.194 13.428);
+  --color-error-content: oklch(27% 0.105 12.094);
 }
 
 @layer base {
-  [data-theme="light"] {
-    --color-primary: RGB(23 23 23);        
-    --color-secondary: RGB(115 115 115);   
-    --color-background: RGB(250 250 250);  
-    --color-surface: RGB(255 255 255);     
-    --color-muted: RGB(163 163 163);       
-    --color-border: RGB(229 229 229);      
-    --color-accent: RGB(99 102 241);       
-    --color-accent-active: RGB(79 70 229); 
-    --color-accent-text: RGB(255 255 255); 
-    --color-success: RGB(16 185 129);      
-    --color-warning: RGB(245 158 11);      
-    --color-error: RGB(239 68 68);         
+  [data-theme="dark"] {
+    --color-base-100: oklch(27% 0.015 252);
+    --color-base-200: oklch(24% 0.013 253);
+    --color-base-content: oklch(96% 0.003 270);
+    --color-accent: oklch(65% 0.20 277);
+    --color-accent-active: oklch(55% 0.20 277);
+    --color-accent-content: oklch(96% 0.015 272);
+    --color-surface: oklch(15% 0.02 262);
+    --color-surface-content: oklch(92% 0.004 286);
+    --color-success: oklch(72% 0.15 163);
+    --color-success-content: oklch(35% 0.06 169);
+    --color-warning: oklch(78% 0.16 84);
+    --color-warning-content: oklch(35% 0.08 46);
+    --color-error: oklch(66% 0.20 16);
+    --color-error-content: oklch(15% 0.02 262);
   }
 
-  [data-theme="dark"] {
-    --color-primary: RGB(250 250 250);
-    --color-secondary: RGB(196 181 253);
-    --color-background: RGB(35 40 55);
-    --color-surface: RGB(50 58 75);
-    --color-muted: RGB(156 163 175);
-    --color-border: RGB(75 85 99);
-    --color-accent: RGB(139 92 246);
-    --color-accent-active: RGB(167 139 250);
-    --color-accent-text: RGB(35 40 55);
-    --color-success: RGB(16 185 129);
-    --color-warning: RGB(251 191 36);
-    --color-error: RGB(244 63 94);
+  [data-theme="light"] {
+    --color-base-100: oklch(97% 0.01 270);
+    --color-base-200: oklch(94% 0.01 270);
+    --color-base-content: oklch(35% 0.02 280);
+    --color-surface: oklch(90% 0.01 270);
+    --color-surface-content: oklch(20% 0.01 270);
+    --color-accent: oklch(60% 0.15 280);
+    --color-accent-active: oklch(50% 0.15 280);
+    --color-accent-content: oklch(98% 0.005 270);
+    --color-success: oklch(75% 0.14 150);
+    --color-success-content: oklch(30% 0.05 150);
+    --color-warning: oklch(78% 0.16 80);
+    --color-warning-content: oklch(30% 0.08 80);
+    --color-error: oklch(68% 0.18 20);
+    --color-error-content: oklch(98% 0.005 20);
   }
+
+  [data-theme="neutral light"] {
+    --color-base-100: oklch(92% 0.004 270);
+    --color-base-200: oklch(88% 0.003 270);
+    --color-base-content: oklch(20% 0.004 270);
+    --color-accent: oklch(60% 0.05 270);
+    --color-accent-active: oklch(50% 0.05 270);
+    --color-accent-content: oklch(95% 0.003 270);
+    --color-surface: oklch(15% 0.003 270);
+    --color-surface-content: oklch(92% 0.003 270);
+    --color-success: oklch(70% 0.08 145);
+    --color-success-content: oklch(25% 0.02 145);
+    --color-warning: oklch(78% 0.1 80);
+    --color-warning-content: oklch(35% 0.05 80);
+    --color-error: oklch(65% 0.12 20);
+    --color-error-content: oklch(95% 0.003 20);
+  }
+
+  [data-theme="neutral dark"] {
+    --color-base-100: oklch(22% 0.004 270);
+    --color-base-200: oklch(18% 0.003 270);
+    --color-base-content: oklch(92% 0.003 270);
+    --color-accent: oklch(65% 0.06 270);
+    --color-accent-active: oklch(55% 0.06 270);
+    --color-accent-content: oklch(98% 0.003 270);
+    --color-surface: oklch(12% 0.003 270);
+    --color-surface-content: oklch(90% 0.003 270);
+    --color-success: oklch(72% 0.07 145);
+    --color-success-content: oklch(30% 0.02 145);
+    --color-warning: oklch(76% 0.09 80);
+    --color-warning-content: oklch(32% 0.05 80);
+    --color-error: oklch(68% 0.11 20);
+    --color-error-content: oklch(92% 0.003 20);
+  }
+
 }
 
 :root {
   @apply font-sans antialiased subpixel-antialiased;
   @apply min-w-[360px];
-  @apply text-primary bg-background;
+  @apply text-base-content bg-base-100;
   
   font-synthesis: none;
   text-rendering: optimizeLegibility;

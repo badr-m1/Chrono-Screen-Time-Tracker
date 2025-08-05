@@ -53,7 +53,7 @@ function ListItem({url, time, icon, total}){
 
 
     return (
-    <li className="flex border-t-1 border-primary px-0.5 h-8 w-full gap-0.5">
+    <li className="flex border-t-1 border-base-content px-0.5 h-8 w-full gap-0.5">
         {iconElement}
         <div style={{width: "100%"}}>
             <div className="flex justify-between w-full">
