@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 @theme{
-  --color-base-100: oklch(100% 0 0);
-  --color-base-200: oklch(98% 0 0);
-  --color-base-content: oklch(21% 0.006 285.885);
-  --color-accent: oklch(45% 0.24 277.023);
-  --color-accent-active: oklch(35% 0.24 277.023);
-  --color-accent-content: oklch(93% 0.034 272.788);
-  --color-surface: oklch(14% 0.005 285.823);
-  --color-surface-content: oklch(92% 0.004 286.32);
-  --color-success: oklch(76% 0.177 163.223);
-  --color-success-content: oklch(37% 0.077 168.94);
-  --color-warning: oklch(82% 0.189 84.429);
-  --color-warning-content: oklch(41% 0.112 45.904);
-  --color-error: oklch(71% 0.194 13.428);
-  --color-error-content: oklch(27% 0.105 12.094);
+  --color-base-100: oklch(97% 0.01 270);
+  --color-base-200: oklch(94% 0.01 270);
+  --color-base-content: oklch(35% 0.02 280);
+  --color-surface: oklch(90% 0.01 270);
+  --color-surface-content: oklch(20% 0.01 270);
+  --color-accent: oklch(60% 0.15 280);
+  --color-accent-active: oklch(50% 0.15 280);
+  --color-accent-content: oklch(98% 0.005 270);
+  --color-success: oklch(75% 0.14 150);
+  --color-success-content: oklch(30% 0.05 150);
+  --color-warning: oklch(78% 0.16 80);
+  --color-warning-content: oklch(30% 0.08 80);
+  --color-error: oklch(68% 0.18 20);
+  --color-error-content: oklch(98% 0.005 20);
 }
 
 @layer base {
@@ -52,15 +52,15 @@
     --color-error-content: oklch(98% 0.005 20);
   }
 
-  [data-theme="neutral light"] {
-    --color-base-100: oklch(92% 0.004 270);
-    --color-base-200: oklch(88% 0.003 270);
-    --color-base-content: oklch(20% 0.004 270);
-    --color-accent: oklch(60% 0.05 270);
-    --color-accent-active: oklch(50% 0.05 270);
-    --color-accent-content: oklch(95% 0.003 270);
-    --color-surface: oklch(15% 0.003 270);
-    --color-surface-content: oklch(92% 0.003 270);
+  [data-theme="monochrome light"] {
+    --color-base-100: oklch(95% 0 0);
+    --color-base-200: oklch(90% 0 0);
+    --color-base-content: oklch(15% 0 0);
+    --color-accent: oklch(55% 0 0);
+    --color-accent-active: oklch(45% 0 0);
+    --color-accent-content: oklch(95% 0 0);
+    --color-surface: oklch(10% 0 0);
+    --color-surface-content: oklch(95% 0 0);
     --color-success: oklch(70% 0.08 145);
     --color-success-content: oklch(25% 0.02 145);
     --color-warning: oklch(78% 0.1 80);
@@ -69,21 +69,55 @@
     --color-error-content: oklch(95% 0.003 20);
   }
 
-  [data-theme="neutral dark"] {
-    --color-base-100: oklch(22% 0.004 270);
-    --color-base-200: oklch(18% 0.003 270);
-    --color-base-content: oklch(92% 0.003 270);
-    --color-accent: oklch(65% 0.06 270);
-    --color-accent-active: oklch(55% 0.06 270);
-    --color-accent-content: oklch(98% 0.003 270);
-    --color-surface: oklch(12% 0.003 270);
-    --color-surface-content: oklch(90% 0.003 270);
-    --color-success: oklch(72% 0.07 145);
-    --color-success-content: oklch(30% 0.02 145);
-    --color-warning: oklch(76% 0.09 80);
-    --color-warning-content: oklch(32% 0.05 80);
-    --color-error: oklch(68% 0.11 20);
-    --color-error-content: oklch(92% 0.003 20);
+  [data-theme="monochrome dark"] {
+   --color-base-100: oklch(15% 0 0);
+   --color-base-200: oklch(20% 0 0);
+   --color-base-content: oklch(90% 0 0);
+   --color-accent: oklch(60% 0 0);
+   --color-accent-active: oklch(70% 0 0);
+   --color-accent-content: oklch(10% 0 0);
+   --color-surface: oklch(95% 0 0);
+   --color-surface-content: oklch(15% 0 0);
+   --color-success: oklch(70% 0.08 145);
+   --color-success-content: oklch(25% 0.02 145);
+   --color-warning: oklch(78% 0.1 80);
+   --color-warning-content: oklch(35% 0.05 80);
+   --color-error: oklch(65% 0.12 20);
+   --color-error-content: oklch(10% 0 0);
+  }
+
+  [data-theme="steel blue"] {
+    --color-base-100: oklch(93% 0.01 230);
+    --color-base-200: oklch(88% 0.008 230);
+    --color-base-content: oklch(25% 0.01 230);
+    --color-accent: oklch(50% 0.06 230);
+    --color-accent-active: oklch(40% 0.06 230);
+    --color-accent-content: oklch(95% 0.002 230);
+    --color-surface: oklch(18% 0.008 230);
+    --color-surface-content: oklch(93% 0.002 230);
+    --color-success: oklch(70% 0.08 145);
+    --color-success-content: oklch(25% 0.02 145);
+    --color-warning: oklch(78% 0.1 80);
+    --color-warning-content: oklch(35% 0.05 80);
+    --color-error: oklch(65% 0.12 20);
+    --color-error-content: oklch(95% 0.003 20);
+  }
+
+  [data-theme="retro green"] {
+    --color-base-100: oklch(8% 0.02 150);
+    --color-base-200: oklch(12% 0.02 150);
+    --color-base-content: oklch(78% 0.08 140);
+    --color-accent: oklch(65% 0.12 130);
+    --color-accent-active: oklch(75% 0.12 130);
+    --color-accent-content: oklch(6% 0.02 130);
+    --color-surface: oklch(88% 0.04 140);
+    --color-surface-content: oklch(8% 0.02 150);
+    --color-success: oklch(70% 0.08 145);
+    --color-success-content: oklch(15% 0.02 145);
+    --color-warning: oklch(80% 0.1 80);
+    --color-warning-content: oklch(20% 0.05 80);
+    --color-error: oklch(70% 0.12 20);
+    --color-error-content: oklch(6% 0.002 20);
   }
 
 }

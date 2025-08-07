@@ -33,7 +33,7 @@ function App() {
           </button>
         </div>
 
-        <h1 className="text-4xl font-bold text-base-content">Settings</h1> 
+        <h1 className="text-4xl font-bold text-base-content m-2">Settings</h1> 
         <Settings/>
       </>}
 
@@ -47,7 +47,7 @@ function App() {
             Settings
           </button>
         </div>
-        <h1 className="text-4xl font-bold text-base-content">Your screentime data</h1> 
+        <h1 className="text-4xl font-bold text-base-content m-2">Your screentime data</h1> 
         <Dashboard/>
       </>}
     </>

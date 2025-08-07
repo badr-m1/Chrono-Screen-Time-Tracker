@@ -28,6 +28,7 @@ function normalizeData(data, days){
 
 function determineMaxValueAndDiv(val){
     const threshholds = [{maxValue:8 , div:1}, {maxValue:19 , div:2}, {maxValue:20 , div:4}]
+    //4 is the minimum
     if (val % 2 !== 0) {
         val += 1;
     }
@@ -42,6 +43,9 @@ function determineMaxValueAndDiv(val){
 }
 
 function DailyDataChart({dailyData, scope}){
+    const chartHeight_px = 150
+    const chartWidth_px = 300
+    
     if(scope == 0 || scope == Infinity) return;
 
     const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a,b) => b.date - a.date)
@@ -50,14 +54,14 @@ function DailyDataChart({dailyData, scope}){
     const values = entries.map(entry => entry.totalTime)
     const [maxValue, div] = determineMaxValueAndDiv( Math.ceil(Math.max(...values)  / (60*60*1000)) )
     const maxValueInMillis = maxValue * (60*60*1000)
-
+    console.log(maxValue, div)
     
     const bars = entries.map((entry,idx) => 
-    <div key={`bc${idx}`} className="flex-1 flex flex-col-reverse mx-0.5 items-end z-1 " > 
+    <div key={`bc${idx}`} className="flex-1 flex flex-col-reverse mx-0.5 items-end z-1" > 
         <div 
         key={`b${idx}`}
         className={"w-full bg-accent flex flex-col-reverse rounded-t-sm "}
-        style={{height: `${( (entry.totalTime/maxValueInMillis)*100).toFixed(0)}%`}}>
+        style={{height: `${ Math.round((entry.totalTime/maxValueInMillis)*100)}%`}}>
         </div> 
 
     </div>)
@@ -85,20 +89,21 @@ function DailyDataChart({dailyData, scope}){
     const gridLineCol = getComputedStyle(document.documentElement)
   .getPropertyValue('--color-base-content').trim();
 
-    const gridLines = 
-    <svg className="absolute inset-0 w-full h-full"
-        shapeRendering="crispEdges">
-        {Array(n).fill(null).map((_, idx) => (
-        <rect
-          x="0"
-          y={`${Math.round((idx * 100) / (maxValue / div))}%`}
-          width="100%"
-          height="2" 
-          fill={gridLineCol}
-          shapeRendering="crispEdges"
+    const gridLines = Array.from({ length: n }, (_, idx) => {
+        const yPos = Math.round((idx * chartHeight_px) / (n - 1));
+        
+        return (
+        <div
+            key={`grid-${idx}`}
+            className="absolute w-full border-t"
+            style={{
+            top: `${yPos}px`,
+            borderColor: gridLineCol,
+            borderWidth: '1px'
+            }}
         />
-    ))}
-    </svg>
+        );
+    });
 
     
 
@@ -109,19 +114,21 @@ function DailyDataChart({dailyData, scope}){
 
 
     return (
-    <div className="flex w-full h-50 bg-base-100 text-base-content border-base-content border-0 mb-4 rounded-md overflow-hidden pt-2">
-        <div className="flex flex-col justify-between h-[90%] w-[8%]">
+    <div className="flex bg-base-100 text-base-content border-base-content border-1 mb-4 rounded-sm overflow-hidden pt-2" >
+        <div className="flex flex-col justify-between w-5" style={{height: `${chartHeight_px}px`}}>
             {yAxisLables}
         </div>
-        <div className="flex flex-col w-full h-full">
-            <div className="relative flex w-full border-base-content border-b-2 border-l-2  border-r-2 h-[90%]">
+        <div className="flex flex-col">
+            <div className="relative flex border-base-content"
+            style={{height: `${chartHeight_px}px`, width: `${chartWidth_px}px`}}
+            >
                 {bars}
                 <div className="absolute inset-0 flex flex-col justify-between z-0">
                     {gridLines}
                 </div>
             </div>
 
-            <div className="flex w-full h-[10%]">
+            <div className="flex h-5 w-full">
                 {xAxisLables}
             </div>
 

@@ -6,6 +6,15 @@ const INTERVAL_TIME = 1000
 let usageData = {}
 let intervalId = null;
 
+function clearObject(obj) {
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      delete obj[key];
+    }
+  }
+  return obj;
+}
+
 function getHostnameIfValid(url) {
   try {
     const parsedUrl = new URL(url);
@@ -16,14 +25,14 @@ function getHostnameIfValid(url) {
 }
 
 function updateUsageData(url, time, favIconUrl){
-  if(url === null || time === null || time > 35000) return;
+  if(url === null || url === '' || time === null || time > 35000) return;
   usageData[url] = {time: (usageData[url]?.time || 0) + time, iconUrl: favIconUrl};
 }
 
 async function updateStorage(){
   const entries = Object.keys(usageData).map( (url) => ({url:url, time:usageData[url].time, iconUrl: usageData[url].iconUrl}))
   await bulkUpdateUsageData(entries)
-  usageData = {}
+  usageData = clearObject(usageData)
 }
 
 function getCurrentTab() {

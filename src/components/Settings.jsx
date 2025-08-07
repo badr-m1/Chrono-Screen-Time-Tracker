@@ -41,13 +41,13 @@ function Settings(){
         
 
         <div className="border-t-1 border-base-content px-0.5 h-auto w-full gap-0.5 p-2">
-        <h1 className="text-4xl font-bold text-base-content">Appearance</h1>
+        <h1 className="text-4xl font-bold text-base-content m-2">Appearance</h1>
           <ThemeSwitcher/>
         </div>
 
 
         <div className="flex flex-col items-center border-t-1 border-base-content px-0.5 h-auto w-full gap-0.5 p-2">
-        <h1 className="text-4xl font-bold text-base-content">Data management </h1>
+        <h1 className="text-4xl font-bold text-base-content m-2">Data management </h1>
           <div className="flex justify-between w-full">
             <span className="flex text-nowrap text-center items-center m-2">Clear data for a specific domain: </span>
             <SearchBar suggestionsCallBack={getSearchPredictions} onValueChange={setSearchValue} placeholder={"Domain name"}/>

@@ -73,11 +73,12 @@ function Dashboard() {
         </nav>
         {(usageData.records.length == 0) ? (<h2>There are no screen time tracking data</h2>) :
         (<>
+
         <div className="flex justify-between h-5 m-0.5">
           <span>total : {formatTime(totalTime)}</span>
           {scope != 0 && <span>Daily average: {formatTime(dailyAverage)}</span>}
         </div>
-
+        
         <DailyDataChart dailyData={usageData.dailyTotals} scope={Number(scope)}/>
 
         <ul className>

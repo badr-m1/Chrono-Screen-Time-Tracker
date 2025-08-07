@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const themes = ["light", "dark", "neutral light", "neutral dark"]; 
+const themes = ["light", "dark", "monochrome light", "monochrome dark", "steel blue", "retro green"]; 
 
 export default function ThemeSwitcher() {
   const [currentTheme, setCurrentTheme] = useState(themes[0])
