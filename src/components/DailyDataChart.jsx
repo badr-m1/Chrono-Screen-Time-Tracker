@@ -1,3 +1,5 @@
+import {getDayTimestampLocal} from "../../public/utils.js";
+
 function getShortFormDate(timestamp){
   const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -17,12 +19,13 @@ function getWeekDay(timestamp){
 
 function normalizeData(data, days){
     const dayInMs = 24*60*60*1000
-    data = data.slice(0, days);
-    const minDate = data[data.length-1].date
-    const fill = Array(days-data.length)
-    .fill({})
-    .map((v,idx) => ({date: minDate - (dayInMs * (idx + 1)), totalTime:0 }))
-    data = [...data,...fill]
+    for(let i = 0; i < days; i++){
+        const currDate = getDayTimestampLocal() - (dayInMs * i)
+        if(i > data.length -1 || data[i].date != currDate){
+            const inserted = {date:currDate, totalTime:0}
+            data = [...data.slice(0, i), inserted , ...data.slice(i)]
+        }
+    }
     return data
 }
 
@@ -54,7 +57,6 @@ function DailyDataChart({dailyData, scope}){
     const values = entries.map(entry => entry.totalTime)
     const [maxValue, div] = determineMaxValueAndDiv( Math.ceil(Math.max(...values)  / (60*60*1000)) )
     const maxValueInMillis = maxValue * (60*60*1000)
-    console.log(maxValue, div)
     
     const bars = entries.map((entry,idx) => 
     <div key={`bc${idx}`} className="flex-1 flex flex-col-reverse mx-0.5 items-end z-1" > 

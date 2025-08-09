@@ -1,8 +1,8 @@
 
 function Confirm({text, onClose, onConfirm}) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="bg-base-200 rounded-lg popup-fade max-w-full max-h-full overflow-auto p-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center ">
+        <div className="bg-base-200 rounded-lg popup-fade max-w-full max-h-full overflow-auto p-5 border-base-content border-1">
           <span>{text}</span>
           <div className="flex justify-between m-2">
             <button

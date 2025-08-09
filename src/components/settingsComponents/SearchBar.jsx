@@ -11,7 +11,6 @@ function SearchBar({ suggestionsCallBack, onValueChange, placeholder }) {
     setInputValue(value);
     onValueChange(value)
     suggestionsCallBack(value).then((suggestions) =>{
-        console.log(suggestions)
         const normalized = suggestions.map(s => s.url)
         setFilteredSuggestions(normalized);
         setShowSuggestions(true);

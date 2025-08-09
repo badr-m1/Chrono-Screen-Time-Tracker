@@ -1,15 +1,20 @@
 {
-    "name": "Time Tracker",
+    "name": "ScreenSense",
     "version": "0.1.0",
-    "description": "Tracking browser usage time",
+    "description": "Monitor your daily screen time across all websites.",
     "permissions": ["storage", "tabs", "alarms", "scripting"],
+      "icons": {
+      "16": "icon/icon16.png",
+      "48": "icon/icon48.png",
+      "128": "icon/icon128.png"
+    },
     "host_permissions": ["http://*/*","https://*/*"],
     "background": {
       "service_worker": "background.js",
       "type": "module"
     },
     "action": {
-      "default_title": "Time Tracker",
+      "default_title": "Screentime tracker",
       "default_popup": "index.html"
     },
     "manifest_version": 3

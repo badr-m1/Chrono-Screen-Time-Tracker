@@ -1,9 +1,6 @@
 import db from "./db.js"
+import { getDayTimestampLocal } from "./utils.js";
 const ALL_TIME_KEY = "__allTime__";
-
-function getDayTimestampLocal(date = new Date()) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-}
 
 async function fetchImageAsBlob(imageUrl) {
   try {
@@ -182,7 +179,6 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
   const urls = usageData.map(record => record.url)
   const records = []
   const icons = await getWebsiteIcons(urls)
-  console.log(icons)
   
   for(let i = 0; i < usageData.length; i++){
     const cachedIcon = icons[i]
@@ -259,7 +255,6 @@ export async function deleteDomainUsageData(url){
   .then(function (deleteCount) {
       console.log( "Deleted " + deleteCount + " objects");
   });
-
 }
 
 export async function exportDBtoJSON() {

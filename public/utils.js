@@ -48,15 +48,6 @@ export function formatSize(byteSize){
   return `${byteSize.toFixed(2)} ${units[i]}`;
 }
 
-export function blobToBase64(blob) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
-}
-
-export function base64ToBlob(base64) {
-  return fetch(base64)
-  .then(res => res.blob())
+export function getDayTimestampLocal(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
