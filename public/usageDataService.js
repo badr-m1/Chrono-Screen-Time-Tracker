@@ -14,7 +14,9 @@ async function fetchImageAsBlob(imageUrl) {
     return await res.blob();
     
   }catch (error) {
-    console.error(`Fetch error for ${imageUrl}:`, error);
+    if (error.name !== 'TypeError') {
+      console.error(`Unexpected fetch error for ${imageUrl}:`, error);
+    }
     return null;
   }
 }
