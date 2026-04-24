@@ -24,7 +24,12 @@ function App() {
 
       {viewSettings && 
       <>
-        <div class="flex flex-row-reverse items-end">
+      
+        <h1 className="text-4xl font-bold text-base-content m-2">Settings</h1> 
+
+        <Settings/>
+        
+        <div class="flex justify-center m-1">
           <button 
           onClick={() => SetViewSettings(false)}
           className="w-fit rounded-md px-2 py-2 bg-accent text-accent-content hover:bg-accent-active hover:text-accent-content"
@@ -32,14 +37,16 @@ function App() {
             Back
           </button>
         </div>
-
-        <h1 className="text-4xl font-bold text-base-content m-2">Settings</h1> 
-        <Settings/>
+        
       </>}
 
       {!viewSettings && 
       <>
-        <div class="flex flex-row-reverse items-end">
+        <h1 className="text-4xl font-bold text-base-content m-2">Your screentime data</h1> 
+
+        <Dashboard/>
+
+        <div class="flex justify-center m-1">
           <button 
           onClick={() => SetViewSettings(true)}
           className="w-fit rounded-md px-2 py-2 bg-accent text-accent-content hover:bg-accent-active hover:text-accent-content"
@@ -47,8 +54,7 @@ function App() {
             Settings
           </button>
         </div>
-        <h1 className="text-4xl font-bold text-base-content m-2">Your screentime data</h1> 
-        <Dashboard/>
+
       </>}
     </>
   )

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import ListItem from "./ListItem.jsx";
 import Tab from "./Tab.jsx";
 import DailyDataChart from "./DailyDataChart.jsx";
-
+import Stat from "./Stat.jsx";
 function Dashboard() {
   const scopes = { Infinity:"all time", 29: "Last Month", 6: "Last Week", 0: "Today" }
 
@@ -74,9 +74,9 @@ function Dashboard() {
         {(usageData.records.length == 0) ? (<h2>There are no screen time tracking data</h2>) :
         (<>
 
-        <div className="flex justify-between h-5 m-0.5">
-          <span>total : {formatTime(totalTime)}</span>
-          {scope != 0 && <span>Daily average: {formatTime(dailyAverage)}</span>}
+        <div className="flex justify-between m-1">
+          <Stat label={"Total"} value={formatTime(totalTime)}/>
+          {scope !=  0 && <Stat label={"Avg / Day"} value={formatTime(dailyAverage)}/>}
         </div>
         
         <DailyDataChart dailyData={usageData.dailyTotals} scope={Number(scope)}/>
