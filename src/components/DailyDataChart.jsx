@@ -79,7 +79,7 @@ function DailyDataChart({dailyData, scope}){
 
         return (
         <div className="flex-1 flex relative justify-center mx-0.5 ">
-            <span className="absolute text-base-content left-1/2 -translate-x-1/2 items-center text-center text-[10px] overflow-visible whitespace-nowrap flex flex-col">
+            <span className="absolute text-base-content-muted left-1/2 -translate-x-1/2 items-center text-center text-[10px] overflow-visible whitespace-nowrap flex flex-col">
             {label != "" && <div className="bg-base-content h-[5px] w-[2px]"></div>}
             {label}
             </span>
@@ -89,7 +89,7 @@ function DailyDataChart({dailyData, scope}){
     const n = (maxValue/div) + 1
 
     const gridLineCol = getComputedStyle(document.documentElement)
-  .getPropertyValue('--color-base-content').trim();
+  .getPropertyValue('--color-base-content-muted').trim();
 
     const gridLines = Array.from({ length: n }, (_, idx) => {
         const yPos = Math.round((idx * chartHeight_px) / (n - 1));
@@ -106,22 +106,20 @@ function DailyDataChart({dailyData, scope}){
         />
         );
     });
-
     
-
     const yAxisLables = Array(n).fill(null).map((_,idx) => 
     <div className="flex relative justify-center items-center">
-        <span key={`l${idx}`} className="absolute top-1/2 -translate-y-1/2 items-center text-[12px] text-base-content">{(n-(idx+1)) * div}h</span>
+        <span key={`l${idx}`} className="absolute top-1/2 -translate-y-1/2 items-center text-[12px] text-base-content-muted">{(n-(idx+1)) * div}h</span>
     </div>)
 
 
     return (
-    <div className="flex bg-base-100 text-base-content border-base-content border-1 mb-4 rounded-sm overflow-hidden pt-2" >
+    <div className="flex bg-surface text-base-content border-base-content mb-4 rounded-sm overflow-hidden pt-2" >
         <div className="flex flex-col justify-between w-5" style={{height: `${chartHeight_px}px`}}>
             {yAxisLables}
         </div>
         <div className="flex flex-col">
-            <div className="relative flex border-base-content"
+            <div className="relative flex border-base-content-muted"
             style={{height: `${chartHeight_px}px`, width: `${chartWidth_px}px`}}
             >
                 {bars}

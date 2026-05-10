@@ -1,13 +1,15 @@
-function Stat({label, value}){
-    return (
-    <div className="flex">
-            <span className="text-sm text-base-content">
-                {label}
-            </span>
-            <span className="text-sm font-bold text-base-content px-1">
-              {value}
-            </span>
+function Stat({ label, value }) {
+  return (
+    <div className="flex flex-col gap-1 py-1">
+      <span className="text-[20px] font-semibold text-base-content leading-none">
+        {value}
+      </span>
+      <span className="text-[14px] text-base-content-muted">
+        {label}
+      </span>
     </div>
-    );
+  );
 }
-export default Stat
+
+export default Stat;
+

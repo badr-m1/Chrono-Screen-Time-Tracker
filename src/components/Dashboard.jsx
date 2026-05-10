@@ -6,7 +6,7 @@ import Tab from "./Tab.jsx";
 import DailyDataChart from "./DailyDataChart.jsx";
 import Stat from "./Stat.jsx";
 function Dashboard() {
-  const scopes = { Infinity:"all time", 29: "Last Month", 6: "Last Week", 0: "Today" }
+  const scopes = { Infinity:"All", 179:"6M",89:"3M", 29: "30D", 6: "7D", 0: "1D" }
 
   const [scope, setScope] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
