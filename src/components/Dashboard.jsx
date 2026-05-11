@@ -5,9 +5,10 @@ import ListItem from "./ListItem.jsx";
 import Tab from "./Tab.jsx";
 import DailyDataChart from "./DailyDataChart.jsx";
 import Stat from "./Stat.jsx";
+import Button from "./Button.jsx";
 function Dashboard() {
   const scopes = { Infinity:"All", 179:"6M",89:"3M", 29: "30D", 6: "7D", 0: "1D" }
-
+  const minDisplayLimit = 5
   const [scope, setScope] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
   const [usageData, setUsageData] = useState({records:[], totaTime: 0, dailyTotals:[]})
@@ -83,11 +84,17 @@ function Dashboard() {
 
         <ul className>
           {listItems}
-          {otherTime > 0 && <button 
-          className="w-fit rounded-md px-2 py-2 bg-accent text-accent-content hover:bg-accent-active" 
-          onClick={() => setDisplayLimit((val) => val + 5)}>
+
+          {otherTime > 0 && 
+          <Button onClick={() => setDisplayLimit((val) => val + 5)}>
             Show More
-          </button>}
+          </Button>}
+
+          {displayLimit > minDisplayLimit &&
+          <Button onClick={() => setDisplayLimit((val) => Math.min(val - 5, minDisplayLimit))}>
+            Show Less
+          </Button>
+          }
         </ul>
         </>)}
       </div>

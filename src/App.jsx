@@ -1,3 +1,4 @@
+import Button from './components/Button';
 import Dashboard from './components/Dashboard';
 import Settings from './components/Settings';
 import { useState, useEffect } from 'react';
@@ -47,12 +48,9 @@ function App() {
         <Dashboard/>
 
         <div class="flex justify-center m-1">
-          <button 
-          onClick={() => SetViewSettings(true)}
-          className="w-fit rounded-md px-2 py-2 bg-accent text-accent-content hover:bg-accent-active hover:text-accent-content"
-          >
+          <Button onClick={() => SetViewSettings(true)}>
             Settings
-          </button>
+          </Button>
         </div>
 
       </>}

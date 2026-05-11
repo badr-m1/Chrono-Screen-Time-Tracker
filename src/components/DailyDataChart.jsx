@@ -45,96 +45,128 @@ function determineMaxValueAndDiv(val){
     return [24, 4]
 }
 
-function DailyDataChart({dailyData, scope}){
-    const chartHeight_px = 150
-    const chartWidth_px = 300
-    
-    if(scope == 0 || scope == Infinity) return;
+function DailyDataChart({ dailyData, scope }) {
+  const svgWidth = 300;
+  const svgHeight = 150;
+  const padLeft = 28;
+  const padBottom = 20;
+  const padTop = 8;
+  const chartW = svgWidth - padLeft;
+  const chartH = svgHeight - padBottom - padTop;
 
-    const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a,b) => b.date - a.date)
-    const entries = normalizeData(sorted, scope+1)
+  if (scope == 0 || scope == Infinity) return null;
 
-    const values = entries.map(entry => entry.totalTime)
-    const [maxValue, div] = determineMaxValueAndDiv( Math.ceil(Math.max(...values)  / (60*60*1000)) )
-    const maxValueInMillis = maxValue * (60*60*1000)
-    
-    const bars = entries.map((entry,idx) => 
-    <div key={`bc${idx}`} className="flex-1 flex flex-col-reverse mx-0.5 items-end z-1" > 
-        <div 
-        key={`b${idx}`}
-        className={"w-full bg-accent flex flex-col-reverse rounded-t-sm "}
-        style={{height: `${ Math.round((entry.totalTime/maxValueInMillis)*100)}%`}}>
-        </div> 
+  const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a, b) => b.date - a.date);
+  const entries = normalizeData(sorted, scope + 1);
 
-    </div>)
-    
-    const xAxisLables = entries.map((entry,idx) => {
-        let label = ""
-        if(scope == 6){
-            label = getWeekDay(entry.date)
-        }
-        else if(idx%7 == 0){
-            label = getShortFormDate(entry.date)
-        }
+  const values = entries.map(entry => entry.totalTime);
+  const [maxValue, div] = determineMaxValueAndDiv(Math.ceil(Math.max(...values) / (60 * 60 * 1000)));
+  const maxValueInMillis = maxValue * (60 * 60 * 1000);
 
-        return (
-        <div className="flex-1 flex relative justify-center mx-0.5 ">
-            <span className="absolute text-base-content-muted left-1/2 -translate-x-1/2 items-center text-center text-[10px] overflow-visible whitespace-nowrap flex flex-col">
-            {label != "" && <div className="bg-base-content h-[5px] w-[2px]"></div>}
-            {label}
-            </span>
-        </div>)   
-    })
-    
-    const n = (maxValue/div) + 1
+  const n = (maxValue / div) + 1;
+  const barSlotW = chartW / entries.length;
+  const barGap = 2;
 
-    const gridLineCol = getComputedStyle(document.documentElement)
-  .getPropertyValue('--color-base-content-muted').trim();
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
+  const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--color-base-content-muted').trim();
+  const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--color-base-content').trim();
 
-    const gridLines = Array.from({ length: n }, (_, idx) => {
-        const yPos = Math.round((idx * chartHeight_px) / (n - 1));
-        
-        return (
-        <div
-            key={`grid-${idx}`}
-            className="absolute w-full border-t"
-            style={{
-            top: `${yPos}px`,
-            borderColor: gridLineCol,
-            borderWidth: '1px'
-            }}
-        />
-        );
-    });
-    
-    const yAxisLables = Array(n).fill(null).map((_,idx) => 
-    <div className="flex relative justify-center items-center">
-        <span key={`l${idx}`} className="absolute top-1/2 -translate-y-1/2 items-center text-[12px] text-base-content-muted">{(n-(idx+1)) * div}h</span>
-    </div>)
+  const gridLines = Array.from({ length: n }, (_, idx) => {
+    const y = padTop + Math.round((idx / (n - 1)) * chartH);
+    return (
+      <line
+        key={`grid-${idx}`}
+        x1={padLeft - 4} y1={y}
+        x2={chartW + padLeft} y2={y}
+        stroke={gridColor}
+        strokeOpacity={0.06}
+        strokeWidth={1}
+      />
+    );
+  });
 
+  const yAxisLabels = Array.from({ length: n }, (_, idx) => {
+    const y = padTop + Math.round((idx / (n - 1)) * chartH);
+    const label = `${(n - (idx + 1)) * div}h`;
+    return (
+      <text
+        key={`yl-${idx}`}
+        x={padLeft - 4}
+        y={y}
+        textAnchor="end"
+        dominantBaseline="middle"
+        fontSize={8}
+        fill={mutedColor}
+      >
+        {label}
+      </text>
+    );
+  });
+
+  const bars = entries.map((entry, idx) => {
+    const barH = Math.round((entry.totalTime / maxValueInMillis) * chartH);
+    const barW = barSlotW - barGap;
+    const x = padLeft + idx * barSlotW + barGap / 2;
+    const y = padTop + chartH - barH;
 
     return (
-    <div className="flex bg-surface text-base-content border-base-content mb-4 rounded-sm overflow-hidden pt-2" >
-        <div className="flex flex-col justify-between w-5" style={{height: `${chartHeight_px}px`}}>
-            {yAxisLables}
-        </div>
-        <div className="flex flex-col">
-            <div className="relative flex border-base-content-muted"
-            style={{height: `${chartHeight_px}px`, width: `${chartWidth_px}px`}}
-            >
-                {bars}
-                <div className="absolute inset-0 flex flex-col justify-between z-0">
-                    {gridLines}
-                </div>
-            </div>
+      <g key={`bar-${idx}`}>
+        <rect
+          x={x} y={y}
+          width={barW} height={barH}
+          fill={accent}
+          fillOpacity={0.15}
+        />
+        <line
+          x1={x} y1={y}
+          x2={x + barW} y2={y}
+          stroke={accent}
+          strokeWidth={1.5}
+        />
+      </g>
+    );
+  });
 
-            <div className="flex h-5 w-full">
-                {xAxisLables}
-            </div>
+  const xAxisLabels = entries.map((entry, idx) => {
+    let label = "";
+    if (scope == 6) label = getWeekDay(entry.date);
+    else if (idx % 7 == 0) label = getShortFormDate(entry.date);
+    if (label === "") return null;
 
-        </div>
+    const x = padLeft + idx * barSlotW + barSlotW / 2;
+    const y = padTop + chartH + 6;
+
+    return (
+      <g key={`xl-${idx}`}>
+        <line
+          x1={x} y1={padTop + chartH}
+          x2={x} y2={padTop + chartH + 4}
+          stroke={mutedColor}
+          strokeWidth={1}
+        />
+        <text
+          x={x} y={y + 6}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize={8}
+          fill={mutedColor}
+        >
+          {label}
+        </text>
+      </g>
+    );
+  });
+
+  return (
+    <div className="bg-surface border border-base-content/8 rounded-sm overflow-hidden mb-4">
+      <svg width={svgWidth} height={svgHeight} className="block">
+        {gridLines}
+        {yAxisLabels}
+        {bars}
+        {xAxisLabels}
+      </svg>
     </div>
-    )
+  );
 }
 
-export default DailyDataChart
+export default DailyDataChart;

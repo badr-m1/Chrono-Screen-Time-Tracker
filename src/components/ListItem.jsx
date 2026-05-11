@@ -58,7 +58,7 @@ function ListItem({url, time, icon, total}){
         <div style={{width: "100%"}}>
             <div className="flex justify-between w-full">
                 <span>{url}</span> 
-                <span>{(time/total * 100 ).toFixed(1)}% - {formatTime(time)}</span>
+                <span>{formatTime(time)}</span>
             </div>
             <StaticBar value={time/total} />
         </div>
