@@ -6,6 +6,7 @@ import BackupData from "./settingsComponents/BackupData.jsx";
 import ClearData from "./settingsComponents/ClearData.jsx";
 import { formatSize } from "../../public/utils.js";
 import { deleteDomainUsageData, getSearchPredictions, clearAllUsageData, clearIconsCache } from "../../public/usageDataService.js";
+import Button from "./Button.jsx";
 
 async function getStorageSize(){
   let estimate = await navigator.storage.estimate()
@@ -37,41 +38,61 @@ function Settings(){
     }, [])
     
     return (
-      <div className="flex flex-col">
-        
+    <div className="flex flex-col">
 
-        <div className="border-t-1 border-base-content px-0.5 h-auto w-full gap-0.5 p-2">
-        <h1 className="text-4xl font-bold text-base-content m-2">Appearance</h1>
-          <ThemeSwitcher/>
-        </div>
-
-
-        <div className="flex flex-col items-center border-t-1 border-base-content px-0.5 h-auto w-full gap-0.5 p-2">
-        <h1 className="text-4xl font-bold text-base-content m-2">Data management </h1>
-          <div className="flex justify-between w-full">
-            <span className="flex text-nowrap text-center items-center m-2">Clear data for a specific domain: </span>
-            <SearchBar suggestionsCallBack={getSearchPredictions} onValueChange={setSearchValue} placeholder={"Domain name"}/>
-          </div>
-
-          <button 
-            className="w-40 rounded-md px-2 py-2 bg-surface text-surface-content hover:bg-warning hover:text-warning-content hover:text-accent-text m-1" 
-            onClick={() => deleteDomainUsageData(searchValue)}
-            >
-            Delete Domain Data
-          </button>
-
-          
-          <h1 className="text-4xl font-bold text-base-content mt-2">Cached data: {formatSize(appStorageStats.usage)}</h1>
-
-          <ClearData text={"Clear all usage data"} callback={clearAllUsageData}/>
-          <ClearData text={"Clear all cached icons "} callback={clearIconsCache}/>
-          <BackupData/>
-
-          <RestoreData/>
-        
-        </div>
-     
+      {/* Appearance */}
+      <div className="border-t border-base-content/20 p-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-base-content/40 mb-3">
+          Appearance
+        </p>
+        <ThemeSwitcher />
       </div>
+
+      {/* Data Management */}
+      <div className="border-t border-base-content/20 p-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-base-content/40 mb-3">
+          Data management
+        </p>
+
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-sm text-base-content/60">Cached data</span>
+          <span className="text-xs font-medium bg-warning/20 text-warning px-2 py-1 rounded-md">
+            {formatSize(appStorageStats.usage)}
+          </span>
+        </div>
+
+        <div className="flex gap-2 mb-4">
+          <ClearData text="Clear usage data" callback={clearAllUsageData} />
+          <ClearData text="Clear cached icons" callback={clearIconsCache} />
+        </div>
+
+        <p className="text-xs font-semibold uppercase tracking-widest text-base-content/40 mb-2">
+          Domain data
+        </p>
+        <div className="flex gap-2">
+          <SearchBar
+            suggestionsCallBack={getSearchPredictions}
+            onValueChange={setSearchValue}
+            placeholder="example.com"
+          />
+          <Button onClick={() => deleteDomainUsageData(searchValue)}>
+            Delete
+          </Button>
+        </div>
+      </div>
+
+      {/* Backup & Restore */}
+      <div className="border-t border-base-content/20 p-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-base-content/40 mb-3">
+          Backup & restore
+        </p>
+        <div className="flex gap-2">
+          <BackupData />
+          <RestoreData />
+        </div>
+      </div>
+
+    </div>
     );
 }
 export default Settings

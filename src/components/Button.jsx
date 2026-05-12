@@ -12,7 +12,7 @@ function Button({ children, onClick, variant = "default" }) {
         }
       `}
     >
-      [ {children} ]
+      {children} 
     </button>
   );
 }

@@ -31,12 +31,12 @@ function App() {
         <Settings/>
         
         <div class="flex justify-center m-1">
-          <button 
+          <Button 
           onClick={() => SetViewSettings(false)}
           className="w-fit rounded-md px-2 py-2 bg-accent text-accent-content hover:bg-accent-active hover:text-accent-content"
           >
             Back
-          </button>
+          </Button>
         </div>
         
       </>}

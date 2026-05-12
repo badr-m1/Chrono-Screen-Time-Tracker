@@ -3,6 +3,7 @@ import Message from "../dialogs/Message.jsx";
 import Confirm from "../dialogs/Confirm.jsx";
 import { importDBfromData } from "../../../public/usageDataService.js";
 import { z } from "zod"
+import Button from "../Button.jsx"
 
 const DBDataSchema = z.object({
   websiteTotalUsage: z.array(z.any()), // adjust z.any() if you know item shape
@@ -59,12 +60,9 @@ function RestoreData(){
   <>
       {msgVisibility && <Message text={msgText} onClose={() => setMsgVisibility(false)}/>}
       {confirmVisibility && <Confirm text={confirmText} onClose={() => setConfirmVisibility(false)} onConfirm={onConfirm}/>}
-      <button 
-          className="w-40 rounded-md px-2 py-2 bg-surface text-surface-content hover:bg-warning hover:text-warning-content hover:text-accent-text m-1" 
-          onClick={handleButtonClick}
-          >
+      <Button onClick={handleButtonClick}>
           Restore from file..
-        </button>
+        </Button>
         <input 
         type="file" 
         ref={fileInputRef}
