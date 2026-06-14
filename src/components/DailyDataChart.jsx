@@ -1,21 +1,5 @@
-import {getDayTimestampLocal} from "../../public/utils.js";
+import {getDayTimestampLocal, getShortFormDate, getWeekDay} from "../../public/utils.js";
 
-function getShortFormDate(timestamp){
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
-
-  const d = new Date(timestamp)
-  return `${months[d.getMonth()]} ${d.getDate()}`
-}
-
-function getWeekDay(timestamp){
-  const weekdaysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-  const d = new Date(timestamp)
-  return weekdaysShort[d.getDay()]
-}
 
 function normalizeData(data, days){
     const dayInMs = 24*60*60*1000

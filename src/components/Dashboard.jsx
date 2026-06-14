@@ -1,4 +1,4 @@
-import { formatTime, getCalendarDayDiff } from "../../public/utils.js";
+import { formatTime, getCalendarDayDiff, getShortFormDate } from "../../public/utils.js";
 import { getUsageData, getStartDate, getwebsiteTotalUsageData } from "../../public/usageDataService.js";
 import { useState, useEffect } from "react"
 import ListItem from "./ListItem.jsx";
@@ -7,9 +7,10 @@ import DailyDataChart from "./DailyDataChart.jsx";
 import Stat from "./Stat.jsx";
 import Button from "./Button.jsx";
 function Dashboard() {
-  const scopes = { Infinity:"All", 179:"6M",89:"3M", 29: "30D", 6: "7D", 0: "1D" }
+  const scopes = { Infinity:"All", 29: "30D", 6: "7D", 0: "1D" }
   const minDisplayLimit = 5
   const [scope, setScope] = useState(0)
+  const [scopeOffset, setScopeOffset] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
   const [usageData, setUsageData] = useState({records:[], totaTime: 0, dailyTotals:[]})
   const [displayLimit, setDisplayLimit] = useState(5)
@@ -22,6 +23,7 @@ function Dashboard() {
 
   useEffect(() => {
     setDisplayLimit(5)
+    setScopeOffset(0)
   }, [scope])
 
   useEffect(() => {
@@ -67,6 +69,12 @@ function Dashboard() {
   const tabs = Object.keys(scopes)
   .map((k) => <Tab onClick={() => { setScope(k) }}  isActive={scope == k} text={scopes[k]}/>)
 
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() - scope * (scopeOffset));
+
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - scope * (scopeOffset+1));
+
   return (
       <div>
         <nav className=" bg-base-100 flex justify-around border-1 border-base-content overflow-hidden max-h-10 rounded-sm">
@@ -80,6 +88,18 @@ function Dashboard() {
           {scope !=  0 && <Stat label={"Avg / Day"} value={formatTime(dailyAverage)}/>}
         </div>
         
+        {scope!=Infinity && 
+        (<div className="p-2 m-2 bg-surface rounded-sm flex justify-around">
+          <Button onClick={() => (setScopeOffset(val => val == 0 ? val : val-1))} >{"<"}</Button>
+          <span>{getShortFormDate(endDate)}</span>
+          
+          {scope!=0&&(<>
+          <span>-</span>
+          <span>{getShortFormDate(startDate)}</span>
+          </>)}
+          <Button onClick={() => (setScopeOffset(val => val+1))} >{">"}</Button>
+        </div>)
+        }
         <DailyDataChart dailyData={usageData.dailyTotals} scope={Number(scope)}/>
 
         <ul className>

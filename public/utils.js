@@ -48,3 +48,20 @@ export function formatSize(byteSize){
 export function getDayTimestampLocal(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
+
+export function getShortFormDate(timestamp){
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+
+  const d = new Date(timestamp)
+  return `${months[d.getMonth()]} ${d.getDate()}`
+}
+
+export function getWeekDay(timestamp){
+  const weekdaysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const d = new Date(timestamp)
+  return weekdaysShort[d.getDay()]
+}
