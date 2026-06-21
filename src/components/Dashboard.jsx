@@ -14,7 +14,7 @@ function Dashboard() {
   const [daysActive, setDaysActive] = useState(0)
   const [usageData, setUsageData] = useState({records:[], totaTime: 0, dailyTotals:[]})
   const [displayLimit, setDisplayLimit] = useState(5)
-
+  console.log(usageData)
   useEffect(() => {
     getStartDate().then( result =>{
       setDaysActive(getCalendarDayDiff(result, Date.now()) + 1)
@@ -37,9 +37,11 @@ function Dashboard() {
           })
         }
         else{
-
-          const maxDate = Date.now() - (1000*60*60*24*scope)
-          getUsageData(displayLimit, maxDate).then(result =>{
+          const endDate = new Date();
+          endDate.setDate(endDate.getDate() - scope * (scopeOffset));
+          const startDate = new Date();
+          startDate.setDate(startDate.getDate() - scope * (scopeOffset+1));
+          getUsageData(displayLimit, startDate, endDate).then(result =>{
             setUsageData(result)
           })
 
@@ -48,10 +50,8 @@ function Dashboard() {
       }
     })
 
-  }, [scope, displayLimit])
+  }, [scope, displayLimit, scopeOffset])
 
-  
-  
   const totalTime = usageData.totalTime
   let listItems = usageData.records.map((record) => <ListItem key={record.url} url={record.url} time={record.time} icon={record.icon} total={totalTime} />)
   
@@ -100,7 +100,7 @@ function Dashboard() {
           <Button onClick={() => (setScopeOffset(val => val+1))} >{">"}</Button>
         </div>)
         }
-        <DailyDataChart dailyData={usageData.dailyTotals} scope={Number(scope)}/>
+        <DailyDataChart dailyData={usageData.dailyTotals} totalDays={usageData.totalDays} endDate={usageData.endDate}/>
 
         <ul className>
           {listItems}

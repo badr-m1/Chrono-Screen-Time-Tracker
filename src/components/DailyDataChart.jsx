@@ -1,10 +1,10 @@
 import {getDayTimestampLocal, getShortFormDate, getWeekDay} from "../../public/utils.js";
 
 
-function normalizeData(data, days){
+function normalizeData(data, days, endDate){
     const dayInMs = 24*60*60*1000
     for(let i = 0; i < days; i++){
-        const currDate = getDayTimestampLocal() - (dayInMs * i)
+        const currDate = endDate - (dayInMs * i)
         if(i > data.length -1 || data[i].date != currDate){
             const inserted = {date:currDate, totalTime:0}
             data = [...data.slice(0, i), inserted , ...data.slice(i)]
@@ -29,7 +29,7 @@ function determineMaxValueAndDiv(val){
     return [24, 4]
 }
 
-function DailyDataChart({ dailyData, scope }) {
+function DailyDataChart({ dailyData, totalDays, endDate}) {
   const svgWidth = 300;
   const svgHeight = 150;
   const padLeft = 28;
@@ -38,11 +38,10 @@ function DailyDataChart({ dailyData, scope }) {
   const chartW = svgWidth - padLeft;
   const chartH = svgHeight - padBottom - padTop;
 
-  if (scope == 0 || scope == Infinity) return null;
+  if (totalDays == 1 || totalDays == Infinity) return null;
 
   const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a, b) => b.date - a.date);
-  const entries = normalizeData(sorted, scope + 1);
-
+  const entries = normalizeData(sorted, totalDays, endDate);
   const values = entries.map(entry => entry.totalTime);
   const [maxValue, div] = determineMaxValueAndDiv(Math.ceil(Math.max(...values) / (60 * 60 * 1000)));
   const maxValueInMillis = maxValue * (60 * 60 * 1000);
@@ -113,7 +112,7 @@ function DailyDataChart({ dailyData, scope }) {
 
   const xAxisLabels = entries.map((entry, idx) => {
     let label = "";
-    if (scope == 6) label = getWeekDay(entry.date);
+    if (totalDays == 7) label = getWeekDay(entry.date);
     else if (idx % 7 == 0) label = getShortFormDate(entry.date);
     if (label === "") return null;
 

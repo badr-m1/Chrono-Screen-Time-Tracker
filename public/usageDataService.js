@@ -1,5 +1,5 @@
 import db from "./db.js"
-import { getDayTimestampLocal } from "./utils.js";
+import { getDayTimestampLocal, msToTimeUnits } from "./utils.js";
 const ALL_TIME_KEY = "__allTime__";
 
 async function fetchImageAsBlob(imageUrl) {
@@ -44,7 +44,6 @@ export async function bulkUpdateUsageData(entries) {
   const date = getDayTimestampLocal(new Date(Date.now()));
   const promises = [];
 
-  //updating websiteDailyUsage table
   const dailyUsageKeys = entries.map(entry => [entry.url, date])
   const dailyUsageRecords = await db.websiteDailyUsage.bulkGet(dailyUsageKeys);
   const dailyUsagePuts = []
@@ -62,7 +61,6 @@ export async function bulkUpdateUsageData(entries) {
   promises.push(db.websiteDailyUsage.bulkPut(dailyUsagePuts))
 
 
-  //updating websiteTotalUsage table
   const entryUrls = entries.map(entry => entry.url)
   const totalUsageRecords = await db.websiteTotalUsage.bulkGet(entryUrls);
   const totalUsagePuts = []
@@ -80,7 +78,6 @@ export async function bulkUpdateUsageData(entries) {
 
   promises.push(db.websiteTotalUsage.bulkPut(totalUsagePuts))
 
-  // updating the websiteIcons table
   const iconRecords = await db.websiteIcons.bulkGet(entryUrls)
   const iconPuts = []
 
@@ -97,7 +94,6 @@ export async function bulkUpdateUsageData(entries) {
 
   promises.push(db.websiteIcons.bulkPut(iconPuts))
 
-  //updating the dailyScreenTime table
   const totalTime = entries.reduce((acc, entry) => acc + entry.time, 0)
 
   const allTimeTotal = (await db.dailyScreenTime.get(ALL_TIME_KEY))?.totalTime;
@@ -140,41 +136,39 @@ export async function getwebsiteTotalUsageData(limit = 5){
   const alltime = await db.dailyScreenTime.get(ALL_TIME_KEY)
   const total = alltime.totalTime
 
-  return {records: records, totalTime: total, dailyTotals:dailyTotals}
+  return {records: records, totalTime: total, dailyTotals:dailyTotals, totalDays:Infinity}
 }
 
-export async function getUsageData(limit = 5, maxDate = Date.now()){
+export async function getUsageData(limit = 5, startDate = Date.now(), endDate=Infinity){
 
-  const targetDate = getDayTimestampLocal(new Date(maxDate))
+  if (endDate != Infinity) endDate = getDayTimestampLocal(new Date(endDate))
+  else endDate = getDayTimestampLocal(new Date())
+  startDate = getDayTimestampLocal(startDate)
 
   let usageData = await db.websiteDailyUsage
   .where("date")
-  .aboveOrEqual(targetDate)
+  .between(startDate, endDate, true, true)
   .toArray()
 
   let dailyTotals = await db.dailyScreenTime
   .where("date")
-  .aboveOrEqual(targetDate)
+  .between(startDate, endDate, true, true)
   .toArray()
 
   dailyTotals = dailyTotals.filter((entry) => entry.date != ALL_TIME_KEY)
   let total = dailyTotals.reduce((acc, record) => acc + record.totalTime, 0)
 
-  //reduce the array and add up all dublicates into unique elements
   let reduced = {}
   usageData.forEach(({ url, time }) => {
     reduced[url] = (reduced[url] || 0) + time;
   });
 
-  //sort the reduced list
   usageData = Object.entries(reduced)
   .map(([url, time]) => ({url: url, time: time}) )
   .sort((a,b) => b.time - a.time)
 
-  //exclude anything outside the limit
   usageData = usageData.slice(0, limit);
 
-  //get the icons 
   const urls = usageData.map(record => record.url)
   const records = []
   const icons = await getWebsiteIcons(urls)
@@ -190,7 +184,8 @@ export async function getUsageData(limit = 5, maxDate = Date.now()){
     }
   }
 
-  return {records: records, totalTime: total, dailyTotals: dailyTotals}
+  const totalDays = (msToTimeUnits(endDate).days - msToTimeUnits(startDate).days) + 1
+  return {records: records, totalTime: total, dailyTotals: dailyTotals, startDate:startDate, endDate:endDate, totalDays:totalDays}
 }
 
 export async function getSearchPredictions(searchTerm) {
