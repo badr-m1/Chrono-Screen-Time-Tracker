@@ -1,8 +1,8 @@
-import StaticBar from "./staticBar";
+import ProgressBar from "./ProgressBar";
 import { useState, useEffect } from "react"
-import { formatTime } from "../../public/utils";
+import { formatTime } from "../../../public/utils";
 
-const lightThemeColors = [
+const themeColors = [
   { background: "#FFFFFF", text: "#1A1A1A" },
   { background: "#F5F5F5", text: "#333333" },
   { background: "#E0E0E0", text: "#1A1A1A" },
@@ -12,18 +12,6 @@ const lightThemeColors = [
   { background: "#EF4444", text: "#FFFFFF" },
   { background: "#9CA3AF", text: "#FFFFFF" }
 ];
-
-const darkThemeColors = [
-  { background: "#1F2937", text: "#F9FAFB" },
-  { background: "#111827", text: "#D1D5DB" },
-  { background: "#374151", text: "#E5E7EB" },
-  { background: "#6366F1", text: "#FFFFFF" }, 
-  { background: "#22C55E", text: "#FFFFFF" }, 
-  { background: "#FACC15", text: "#1A1A1A" }, 
-  { background: "#DC2626", text: "#FFFFFF" }, 
-  { background: "#6B7280", text: "#FFFFFF" }
-];
-
 
 function generateDefaultIconDataUrl(letter = "?", color) {
     return <svg width="64" height="64" viewBox="0 0 64 64" className="h-[50%] w-auto align-text-bottom m-2">
@@ -35,10 +23,10 @@ function generateDefaultIconDataUrl(letter = "?", color) {
     </svg>
 }
 
-function ListItem({url, time, icon, total}){
+function UsageListItem({url, time, icon, total}){
     if(url == "") return null
     const letter = ((url.split(".").length > 2) ? url.split(".")[1][0] : url.split(".")[0][0])
-    const color = lightThemeColors[letter.charCodeAt(0) % lightThemeColors.length]
+    const color = themeColors[letter.charCodeAt(0) % themeColors.length]
     const [iconElement, setIconElement] = useState(generateDefaultIconDataUrl(letter, color)) 
 
     useEffect(() => {
@@ -60,10 +48,10 @@ function ListItem({url, time, icon, total}){
                 <span>{url}</span> 
                 <span>{formatTime(time)}</span>
             </div>
-            <StaticBar value={time/total} />
+            <ProgressBar value={time/total} />
         </div>
     </li>
     );
 }
 
-export default ListItem;
+export default UsageListItem;

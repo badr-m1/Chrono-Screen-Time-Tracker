@@ -1,5 +1,5 @@
 import { exportDBtoJSON } from "../../../public/usageDataService.js";
-import Button from "../Button.jsx"
+import Button from "../ui/Button"
 
 function BackupData(){
     

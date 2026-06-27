@@ -1,6 +1,6 @@
-import Button from './components/Button';
-import Dashboard from './components/Dashboard';
-import Settings from './components/Settings';
+import Button from '..//components/ui/Button';
+import Dashboard from '../components/dashboard/Dashboard';
+import Settings from '../components/settings/Settings';
 import { useState, useEffect } from 'react';
 
 function App() {

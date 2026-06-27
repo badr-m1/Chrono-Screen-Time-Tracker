@@ -1,7 +1,6 @@
 import { useState } from "react"
-import { clearAllUsageData } from "../../../public/usageDataService"
 import Confirm from "../dialogs/Confirm"
-import Button from "../Button.jsx"
+import Button from "../ui/Button"
 
 function ClearData({text, callback}){
   const [confirmVisibility, setConfirmVisibility] = useState(false)

@@ -1,5 +1,4 @@
-import {getDayTimestampLocal, getShortFormDate, getWeekDay} from "../../public/utils.js";
-
+import {getShortFormDate, getWeekDay} from "../../../public/utils.js";
 
 function normalizeData(data, days, endDate){
     const dayInMs = 24*60*60*1000
@@ -29,7 +28,7 @@ function determineMaxValueAndDiv(val){
     return [24, 4]
 }
 
-function DailyDataChart({ dailyData, totalDays, endDate}) {
+function DailyUsageChart({ dailyData, totalDays, endDate}) {
   const svgWidth = 300;
   const svgHeight = 150;
   const padLeft = 28;
@@ -152,4 +151,4 @@ function DailyDataChart({ dailyData, totalDays, endDate}) {
   );
 }
 
-export default DailyDataChart;
+export default DailyUsageChart;

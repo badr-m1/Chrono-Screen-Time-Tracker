@@ -1,9 +1,9 @@
 import { useRef, useEffect, useState } from "react"
-import Message from "../dialogs/Message.jsx";
-import Confirm from "../dialogs/Confirm.jsx";
+import Message from "../dialogs/Message";
+import Confirm from "../dialogs/Confirm";
 import { importDBfromData } from "../../../public/usageDataService.js";
 import { z } from "zod"
-import Button from "../Button.jsx"
+import Button from "../ui/Button"
 
 const DBDataSchema = z.object({
   websiteTotalUsage: z.array(z.any()), // adjust z.any() if you know item shape

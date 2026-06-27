@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef  } from "react";
-import ThemeSwitcher from "./settingsComponents/ThemeSwitcher";
-import SearchBar from "./settingsComponents/SearchBar.jsx";
-import RestoreData from "./settingsComponents/RestoreData.jsx";
-import BackupData from "./settingsComponents/BackupData.jsx";
-import ClearData from "./settingsComponents/ClearData.jsx";
-import { formatSize } from "../../public/utils.js";
-import { deleteDomainUsageData, getSearchPredictions, clearAllUsageData, clearIconsCache } from "../../public/usageDataService.js";
-import Button from "./Button.jsx";
+import ThemeSwitcher from "./ThemeSwitcher";
+import SearchBar from "./SearchBar.jsx";
+import RestoreData from "./RestoreData.jsx";
+import BackupData from "./BackupData.jsx";
+import ClearData from "./ClearData.jsx";
+import { formatSize } from "../../../public/utils.js";
+import { deleteDomainUsageData, getSearchPredictions, clearAllUsageData, clearIconsCache } from "../../../public/usageDataService.js";
+import Button from "../ui/Button";
 
 async function getStorageSize(){
   let estimate = await navigator.storage.estimate()

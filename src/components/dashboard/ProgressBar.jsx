@@ -1,4 +1,4 @@
-function StaticBar({ value }) {
+function ProgressBar({ value }) {
   const width = Math.min((value / 1) * 100, 100);
 
   return (
@@ -8,6 +8,6 @@ function StaticBar({ value }) {
   );
 }
 
-export default StaticBar
+export default ProgressBar
 
   
