@@ -136,8 +136,9 @@ export async function getwebsiteTotalUsageData(limit = 5){
   const alltime = await db.dailyScreenTime.get(ALL_TIME_KEY)
   const total = alltime.totalTime
 
-  return {records: records, totalTime: total, dailyTotals:dailyTotals, totalDays:Infinity}
+  return {records: records, totalTime: total, dailyTotals: dailyTotals, startDate:null, endDate:null, days:Infinity}
 }
+
 
 export async function getUsageData(limit = 5, startDate = Date.now(), endDate=Infinity){
 
@@ -185,7 +186,7 @@ export async function getUsageData(limit = 5, startDate = Date.now(), endDate=In
   }
 
   const totalDays = (msToTimeUnits(endDate).days - msToTimeUnits(startDate).days) + 1
-  return {records: records, totalTime: total, dailyTotals: dailyTotals, startDate:startDate, endDate:endDate, totalDays:totalDays}
+  return {records: records, totalTime: total, dailyTotals: dailyTotals, startDate:startDate, endDate:endDate, days:totalDays}
 }
 
 export async function getSearchPredictions(searchTerm) {

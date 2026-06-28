@@ -28,7 +28,10 @@ function determineMaxValueAndDiv(val){
     return [24, 4]
 }
 
-function DailyUsageChart({ dailyData, totalDays, endDate}) {
+function DailyUsageChart({ dailyData, totalDays, endDate, disabled}) {
+  console.log("is disabled:" + disabled)
+  if (disabled) return null;
+
   const svgWidth = 300;
   const svgHeight = 150;
   const padLeft = 28;
@@ -36,8 +39,6 @@ function DailyUsageChart({ dailyData, totalDays, endDate}) {
   const padTop = 8;
   const chartW = svgWidth - padLeft;
   const chartH = svgHeight - padBottom - padTop;
-
-  if (totalDays == 1 || totalDays == Infinity) return null;
 
   const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a, b) => b.date - a.date);
   const entries = normalizeData(sorted, totalDays, endDate);

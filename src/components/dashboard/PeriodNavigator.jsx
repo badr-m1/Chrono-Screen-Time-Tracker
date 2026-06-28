@@ -1,6 +1,8 @@
 import {getShortFormDate} from "../../../public/utils.js";
 
-function PeriodNavigator({isSingleDay, startDate, endDate, onPrevious, onNext, canGoForward,}) {
+function PeriodNavigator({disabled, isSingleDay, startDate, endDate, onPrevious, onNext, canGoForward}) {
+  if(disabled) return null
+  
   return (
     <div className="mx-2 my-3 flex items-center rounded-md bg-base-200 px-3 py-2">
       <button
