@@ -49,7 +49,7 @@ function App() {
 
         <div class="flex justify-center m-1">
           <Button onClick={() => SetViewSettings(true)}>
-            Settings
+            ⚙ Settings
           </Button>
         </div>
 

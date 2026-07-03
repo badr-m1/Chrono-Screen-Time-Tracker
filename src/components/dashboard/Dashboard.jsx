@@ -32,7 +32,6 @@ function getSelectedPeriod(days, periodOffset) {
 }
 
 function Dashboard() {
-
   const [timeRange, setTimeRange] = useState(TIME_RANGES[0])
   const [periodOffset, setPeriodOffset] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
@@ -121,9 +120,10 @@ function Dashboard() {
           isSingleDay={isSingleDay} 
           startDate={startDate} 
           endDate={endDate} 
-          onNext={() => setPeriodOffset(val => val + 1)}
-          onPrevious={() => setPeriodOffset(val => val - 1)}
+          onNext={() => setPeriodOffset(val => val - 1)}
           canGoForward={periodOffset > 0}
+          onPrevious={() => setPeriodOffset(val => val + 1)}
+          canGoBack={getCalendarDayDiff(startDate, Date.now())+1 < daysActive}
         />
 
         <DailyUsageChart 
@@ -135,18 +135,20 @@ function Dashboard() {
 
         <ul className>
           {usageListItems}
+        </ul>
 
+        <div className="m-2 flex min-h-10 items-center justify-center gap-3">
           {otherTime > 0 && 
           <Button onClick={() => setDisplayLimit((val) => val + DISPLAY_INCREMENT)}>
-            Show More
+            Show More ↓
           </Button>}
-
           {displayLimit > DISPLAY_INCREMENT &&
           <Button onClick={() => setDisplayLimit((val) => Math.min(val - DISPLAY_INCREMENT, DISPLAY_INCREMENT))}>
-            Show Less
+            Show Less ↑
           </Button>
           }
-        </ul>
+        </div>
+
         </>)}
       </div>
     );

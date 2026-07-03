@@ -14,7 +14,7 @@ const themeColors = [
 ];
 
 function generateDefaultIconDataUrl(letter = "?", color) {
-    return <svg width="64" height="64" viewBox="0 0 64 64" className="h-[50%] w-auto align-text-bottom m-2">
+    return <svg width="64" height="64" viewBox="0 0 64 64" className="h-4 w-4 align-text-bottom m-2">
       <rect width="100%" height="100%" fill={color.background} rx="8" />
       <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle"
             font-size="32" font-family="Arial, sans-serif" fill={color.text}>
@@ -32,7 +32,7 @@ function UsageListItem({url, time, icon, total}){
     useEffect(() => {
         if(icon && icon instanceof Blob){
             let url = URL.createObjectURL(icon);
-            setIconElement(<img src={url} className="h-[50%] w-auto align-text-bottom m-2" onError={() => setIconElement(generateDefaultIconDataUrl(letter, color))}></img>)
+            setIconElement(<img src={url} className="h-4 w-4 align-text-bottom m-2" onError={() => setIconElement(generateDefaultIconDataUrl(letter, color))}></img>)
             return () => {
                 URL.revokeObjectURL(url)
             }

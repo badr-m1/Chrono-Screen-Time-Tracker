@@ -1,8 +1,8 @@
 import {getShortFormDate, getWeekDay} from "../../../public/utils.js";
 
-function normalizeData(data, days, endDate){
+function fillMissingDays(data, days, endDate){
     const dayInMs = 24*60*60*1000
-    for(let i = 0; i < days; i++){
+    for(let i = days; i <= 0; i--){
         const currDate = endDate - (dayInMs * i)
         if(i > data.length -1 || data[i].date != currDate){
             const inserted = {date:currDate, totalTime:0}
@@ -29,7 +29,6 @@ function determineMaxValueAndDiv(val){
 }
 
 function DailyUsageChart({ dailyData, totalDays, endDate, disabled}) {
-  console.log("is disabled:" + disabled)
   if (disabled) return null;
 
   const svgWidth = 300;
@@ -40,8 +39,8 @@ function DailyUsageChart({ dailyData, totalDays, endDate, disabled}) {
   const chartW = svgWidth - padLeft;
   const chartH = svgHeight - padBottom - padTop;
 
-  const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a, b) => b.date - a.date);
-  const entries = normalizeData(sorted, totalDays, endDate);
+  const sorted = Object.entries(dailyData).map(entry => entry[1]).sort((a, b) => a.date - b.date);
+  const entries = fillMissingDays(sorted, totalDays, endDate);
   const values = entries.map(entry => entry.totalTime);
   const [maxValue, div] = determineMaxValueAndDiv(Math.ceil(Math.max(...values) / (60 * 60 * 1000)));
   const maxValueInMillis = maxValue * (60 * 60 * 1000);
@@ -141,7 +140,7 @@ function DailyUsageChart({ dailyData, totalDays, endDate, disabled}) {
   });
 
   return (
-    <div className="bg-surface border border-base-content/8 rounded-sm overflow-hidden mb-4">
+    <div className="w-full bg-surface border border-base-content/8 rounded-sm overflow-hidden mb-4">
       <svg width={svgWidth} height={svgHeight} className="block">
         {gridLines}
         {yAxisLabels}
