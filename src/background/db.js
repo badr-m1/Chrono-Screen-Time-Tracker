@@ -1,5 +1,4 @@
-import Dexie from "./libs/dexie.mjs";
-
+import Dexie from "dexie";
 
 const db = new Dexie('UsageDataDB');
 

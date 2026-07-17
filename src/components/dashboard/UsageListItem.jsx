@@ -1,6 +1,6 @@
 import ProgressBar from "./ProgressBar";
 import { useState, useEffect } from "react"
-import { formatTime } from "../../../public/utils";
+import { formatTime } from "../../background/utils";
 
 const themeColors = [
   { background: "#FFFFFF", text: "#1A1A1A" },
@@ -41,7 +41,7 @@ function UsageListItem({url, time, icon, total}){
 
 
     return (
-    <li className="flex border-t-1 border-base-content px-0.5 h-8 w-full gap-0.5">
+    <li className="flex border-t-1 border-base-content/16 px-0.5 h-[35px] w-full gap-0.5">
         {iconElement}
         <div style={{width: "100%"}}>
             <div className="flex justify-between w-full">

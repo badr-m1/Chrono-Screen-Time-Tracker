@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react"
 import Message from "../dialogs/Message";
 import Confirm from "../dialogs/Confirm";
-import { importDBfromData } from "../../../public/usageDataService.js";
+import { importDBfromData } from "../../background/usageDataService.js";
 import { z } from "zod"
 import Button from "../ui/Button"
 

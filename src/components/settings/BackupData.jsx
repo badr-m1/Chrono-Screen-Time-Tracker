@@ -1,4 +1,4 @@
-import { exportDBtoJSON } from "../../../public/usageDataService.js";
+import { exportDBtoJSON } from "../../background/usageDataService.js";
 import Button from "../ui/Button"
 
 function BackupData(){

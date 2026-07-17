@@ -4,8 +4,8 @@ import SearchBar from "./SearchBar.jsx";
 import RestoreData from "./RestoreData.jsx";
 import BackupData from "./BackupData.jsx";
 import ClearData from "./ClearData.jsx";
-import { formatSize } from "../../../public/utils.js";
-import { deleteDomainUsageData, getSearchPredictions, clearAllUsageData, clearIconsCache } from "../../../public/usageDataService.js";
+import { formatSize } from "../../background/utils.js";
+import { deleteDomainUsageData, getSearchPredictions, clearAllUsageData, clearIconsCache } from "../../background/usageDataService.js";
 import Button from "../ui/Button";
 
 async function getStorageSize(){

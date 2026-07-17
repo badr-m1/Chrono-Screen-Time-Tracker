@@ -82,6 +82,7 @@
 html, body {
   @apply antialiased subpixel-antialiased;
   @apply min-w-[360px];
+  @apply max-h-[580px];
   @apply text-base-content bg-base-100;
 
   font-family: 'JetBrains Mono', monospace;
@@ -101,4 +102,25 @@ button {
 
 #root {
   @apply m-auto p-5 text-center grid gap-0.5;
+}
+
+/* Width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Thumb */
+::-webkit-scrollbar-thumb {
+  background: #6b7280; /* gray-500 */
+  border-radius: 9999px;
+}
+
+/* Hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563; /* gray-600 */
 }

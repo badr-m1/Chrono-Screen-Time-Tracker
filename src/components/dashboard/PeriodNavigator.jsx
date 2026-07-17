@@ -1,10 +1,10 @@
-import {getShortFormDate} from "../../../public/utils.js";
+import {getShortFormDate} from "../../background/utils.js";
 
 function PeriodNavigator({disabled, isSingleDay, startDate, endDate, onPrevious, canGoBack, onNext, canGoForward}) {
   if(disabled) return null
   
   return (
-    <div className="w-full flex justify-center rounded-sm border border-base-content/8 bg-surface px-2 py-2 my-2 text-md">
+    <div className="w-full flex justify-center rounded-sm border border-base-content/8 bg-surface px-1 py-1 my-1 text-md">
       <button
         onClick={onPrevious}
         disabled={!canGoBack}

@@ -1,10 +1,12 @@
 import db from "./db.js"
+import { getDomain } from "tldts";
 import { getDayTimestampLocal, msToTimeUnits } from "./utils.js";
 const ALL_TIME_KEY = "__allTime__";
 
 async function fetchImageAsBlob(imageUrl) {
   try {
     const res = await fetch(imageUrl);
+
     if(!res.ok) return null
 
     const contentType = res.headers.get('Content-Type');
@@ -13,30 +15,9 @@ async function fetchImageAsBlob(imageUrl) {
 
     return await res.blob();
     
-  }catch (error) {
+  }catch{
     return null;
   }
-}
-
-async function getWebsiteIcons(urls) {
-  const cachedIcons = await db.websiteIcons.bulkGet(urls);
-  const missingUrls = urls.filter((url, index) => !cachedIcons[index]);
-  const fetchPromises = missingUrls.map(url => 
-    fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${url}&sz=64`)
-    .then(icon => ({ url:url, icon:icon }))
-    .catch(() => ({ url:url, icon: null })))
-
-  const fetchedIcons = await Promise.all(fetchPromises);
-  db.websiteIcons.bulkPut(fetchedIcons);
-
-  let idx = 0
-
-  const icons = cachedIcons.map(record => {
-    if(record) return record
-    idx++
-    return fetchedIcons[idx-1]
-  })
-  return icons;
 }
 
 
@@ -84,11 +65,19 @@ export async function bulkUpdateUsageData(entries) {
   for(let i = 0; i < entries.length; i++){
     const entry = entries[i]
     const record = iconRecords[i]
-    if(record){
+    if(record && record.icon != null){
       iconPuts.push({url: record.url, icon: record.icon})
     }
     else{
-      iconPuts.push({url: entry.url,  icon: await fetchImageAsBlob(entry.iconUrl)})
+      console.log("entry url: ", entry.url)
+      console.log("entry domain: ", getDomain(entry.url))
+      console.log("entry favicon: ", entry.iconUrl)
+
+      const icon = await fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${entry.url}&sz=64`) ??
+      await fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${getDomain(entry.url)}&sz=64`) ??
+      await fetchImageAsBlob(entry.iconUrl);
+
+      iconPuts.push({url: entry.url,  icon: icon})
     }
   }
 
@@ -105,16 +94,18 @@ export async function bulkUpdateUsageData(entries) {
   await Promise.all(promises);
 }
 
-export async function getwebsiteTotalUsageData(limit = 5){
+export async function getwebsiteTotalUsageData(limit = 5, page=0){
+  const recordsCount = await db.websiteTotalUsage.count();
 
   const usageData = await db.websiteTotalUsage
   .orderBy("time")
   .reverse()
+  .offset(page*limit)
   .limit(limit)
   .toArray()
 
   const urls = usageData.map(record => record.url)
-  const icons = await getWebsiteIcons(urls)
+  const icons = await db.websiteIcons.bulkGet(urls)
   const records = []
 
   for(let i = 0; i < usageData.length; i++){
@@ -136,12 +127,11 @@ export async function getwebsiteTotalUsageData(limit = 5){
   const alltime = await db.dailyScreenTime.get(ALL_TIME_KEY)
   const total = alltime.totalTime
 
-  return {records: records, totalTime: total, dailyTotals: dailyTotals, startDate:null, endDate:null, days:Infinity}
+  return {records: records, recordsCount: recordsCount, totalTime: total, dailyTotals: dailyTotals, startDate:null, endDate:null, days:Infinity}
 }
 
 
-export async function getUsageData(limit = 5, startDate = Date.now(), endDate=Infinity){
-
+export async function getUsageData(startDate = Date.now(), endDate=Infinity){
   if (endDate != Infinity) endDate = getDayTimestampLocal(new Date(endDate))
   else endDate = getDayTimestampLocal(new Date())
   startDate = getDayTimestampLocal(startDate)
@@ -168,12 +158,9 @@ export async function getUsageData(limit = 5, startDate = Date.now(), endDate=In
   .map(([url, time]) => ({url: url, time: time}) )
   .sort((a,b) => b.time - a.time)
 
-  usageData = usageData.slice(0, limit);
-
   const urls = usageData.map(record => record.url)
   const records = []
-  const icons = await getWebsiteIcons(urls)
-  
+  const icons = await db.websiteIcons.bulkGet(urls)
   for(let i = 0; i < usageData.length; i++){
     const cachedIcon = icons[i]
     const entry = usageData[i]
@@ -186,7 +173,8 @@ export async function getUsageData(limit = 5, startDate = Date.now(), endDate=In
   }
 
   const totalDays = (msToTimeUnits(endDate).days - msToTimeUnits(startDate).days) + 1
-  return {records: records, totalTime: total, dailyTotals: dailyTotals, startDate:startDate, endDate:endDate, days:totalDays}
+
+  return {records: records, recordsCount: records.length, totalTime: total, dailyTotals: dailyTotals, startDate:startDate, endDate:endDate, days:totalDays}
 }
 
 export async function getSearchPredictions(searchTerm) {

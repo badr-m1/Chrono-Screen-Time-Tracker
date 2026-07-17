@@ -1,8 +1,8 @@
-import { formatTime, getCalendarDayDiff, getShortFormDate } from "../../../public/utils.js";
-import { getUsageData, getStartDate, getwebsiteTotalUsageData } from "../../../public/usageDataService.js";
+import { formatTime, getCalendarDayDiff, getShortFormDate } from "../../background/utils.js";
+import { getUsageData, getStartDate, getwebsiteTotalUsageData } from "../../background/usageDataService.js";
 import { useState, useEffect } from "react"
 import UsageListItem from "./UsageListItem.jsx";
-import Tab from "../ui/Tab.jsx";
+import Tab from "./Tab.jsx";
 import DailyUsageChart from "./DailyUsageChart.jsx";
 import Stat from "./Stat.jsx";
 import Button from "../ui/Button.jsx";
@@ -15,7 +15,7 @@ const TIME_RANGES = [
   { label: "All", days: Infinity},
 ]
 
-const DISPLAY_INCREMENT = 5
+const DISPLAY_LIMIT = 5
 
 function getSelectedPeriod(days, periodOffset) {
   if (days == Infinity){
@@ -35,30 +35,28 @@ function Dashboard() {
   const [timeRange, setTimeRange] = useState(TIME_RANGES[0])
   const [periodOffset, setPeriodOffset] = useState(0)
   const [daysActive, setDaysActive] = useState(0)
-  const [usageData, setUsageData] = useState({records:[], totalTime: 0, dailyTotals:[], days:1})
-  const [displayLimit, setDisplayLimit] = useState(DISPLAY_INCREMENT)
+  const [usageData, setUsageData] = useState({records:[], recordsCount: 0, totalTime: 0, dailyTotals:[], days:1})
+  const [page, setPage] = useState(0)
 
   const isOutOfSync = timeRange.days != usageData.days
   const isAllTime =  timeRange.label == "All"
   const isSingleDay = timeRange.label == "1D"
 
-  function loadUsageData() {
+  function loadUsageData(pageChage = false) {
     chrome.runtime.sendMessage({ type: "update_request"}, (response) => {
       if(response == "update_complete"){
         
         if(isAllTime){
-          getwebsiteTotalUsageData(displayLimit).then( result =>{
+          getwebsiteTotalUsageData(DISPLAY_LIMIT, page).then( result =>{
             setUsageData(result)
           })
         }
-        else{
+        else if(!pageChage){
           const {startDate, endDate }  = getSelectedPeriod(timeRange.days, periodOffset)
-          getUsageData(displayLimit, startDate, endDate).then(result =>{
+          getUsageData(startDate, endDate).then(result =>{
             setUsageData(result);
           })
-
         }
-          
       }
     })
   }
@@ -70,22 +68,26 @@ function Dashboard() {
   }, [])
 
   useEffect(() => {
-    setDisplayLimit(DISPLAY_INCREMENT)
+    setPage(0)
     setPeriodOffset(0)
   }, [timeRange])
 
-  useEffect(loadUsageData, [timeRange, displayLimit, periodOffset])
+  useEffect(loadUsageData, [timeRange, periodOffset])
+  useEffect(()=>{loadUsageData(true)}, [page])
 
   const totalTime = usageData.totalTime
+  const NumOfPages = Math.ceil(usageData.recordsCount / 5)
 
-  let usageListItems = usageData.records.map((record) => <UsageListItem key={record.url} url={record.url} time={record.time} icon={record.icon} total={totalTime} />)
+  const usageListItems = usageData.records
+  .slice(
+    isAllTime ? 0 : DISPLAY_LIMIT * page,
+    isAllTime ? undefined : DISPLAY_LIMIT * page + DISPLAY_LIMIT
+  )
+  .map((record) => <UsageListItem key={record.url} url={record.url} time={record.time} icon={record.icon} total={totalTime} />)
   
   const displayedTime = usageData.records.reduce((acc, x) => acc + x.time, 0)
   const otherTime = totalTime - displayedTime
-  if (otherTime > 0) {
-    usageListItems.push(<UsageListItem key={"other"} url={"other"} time={otherTime} icon={null} total={totalTime} />)
-  }
-  
+
   const timeRangeDays = (isAllTime) ? daysActive : Math.min(daysActive, timeRange.days)
 
   const dailyAverage = totalTime / timeRangeDays
@@ -101,10 +103,11 @@ function Dashboard() {
   />)
   
   const {startDate, endDate }  = getSelectedPeriod(timeRange.days, periodOffset)
+  console.log("retrieved record's length: ", usageData.records)
 
   return (
-      <div>
-        <nav className=" bg-base-100 flex justify-around border-1 border-base-content overflow-hidden max-h-10 rounded-sm">
+      <div className="flex flex-col max-h-[500px]">
+        <nav className="flex justify-around border-1 border-base-content/8 bg-surface rounded-sm">
           {tabs}
         </nav>
         {(usageData.records.length == 0) ? (<h2>There are no screen time tracking data</h2>) :
@@ -114,7 +117,7 @@ function Dashboard() {
           <Stat label={"Total"} value={formatTime(totalTime)}/>
           {!isSingleDay && <Stat label={"Avg / Day"} value={formatTime(dailyAverage)}/>}
         </div>
-        
+
         <PeriodNavigator 
           disabled={isAllTime || isOutOfSync}
           isSingleDay={isSingleDay} 
@@ -133,20 +136,18 @@ function Dashboard() {
           disabled={isAllTime || isSingleDay || isOutOfSync}
         />
 
-        <ul className>
+        <ul className="flex-1 h-auto min-h-[100px] max-w-[350px] overflow-y-auto pr-2 rounded-sm border border-gray-200 shadow-inner">
           {usageListItems}
         </ul>
 
-        <div className="m-2 flex min-h-10 items-center justify-center gap-3">
-          {otherTime > 0 && 
-          <Button onClick={() => setDisplayLimit((val) => val + DISPLAY_INCREMENT)}>
-            Show More ↓
-          </Button>}
-          {displayLimit > DISPLAY_INCREMENT &&
-          <Button onClick={() => setDisplayLimit((val) => Math.min(val - DISPLAY_INCREMENT, DISPLAY_INCREMENT))}>
-            Show Less ↑
+
+        <div className="m-1 flex min-h-10 items-center justify-center gap-3">
+          <Button onClick={() => setPage((val) => Math.max(val - 1, 0)) }>
+            {"<"}
           </Button>
-          }
+          <Button onClick={() => setPage((val) =>  Math.min(val + 1, NumOfPages))}>
+            {">"}
+          </Button>
         </div>
 
         </>)}

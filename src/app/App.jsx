@@ -43,11 +43,11 @@ function App() {
 
       {!viewSettings && 
       <>
-        <h1 className="text-4xl font-bold text-base-content m-2">Your screentime data</h1> 
+        <h1 className="text-4xl font-bold text-base-content border-base-content/8 bg-surface border-1 rounded-sm p-1">Your screentime data</h1> 
 
         <Dashboard/>
 
-        <div class="flex justify-center m-1">
+        <div class="flex justify-center">
           <Button onClick={() => SetViewSettings(true)}>
             ⚙ Settings
           </Button>

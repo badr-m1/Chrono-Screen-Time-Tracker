@@ -1,4 +1,4 @@
-import {getShortFormDate, getWeekDay} from "../../../public/utils.js";
+import {getShortFormDate, getWeekDay} from "../../background/utils.js";
 
 function fillMissingDays(data, days, endDate){
     const dayInMs = 24*60*60*1000
@@ -32,7 +32,7 @@ function DailyUsageChart({ dailyData, totalDays, endDate, disabled}) {
   if (disabled) return null;
 
   const svgWidth = 300;
-  const svgHeight = 150;
+  const svgHeight = 120;
   const padLeft = 28;
   const padBottom = 20;
   const padTop = 8;
