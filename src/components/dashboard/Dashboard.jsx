@@ -7,6 +7,7 @@ import DailyUsageChart from "./DailyUsageChart.jsx";
 import Stat from "./Stat.jsx";
 import Button from "../ui/Button.jsx";
 import PeriodNavigator from "./PeriodNavigator.jsx"
+import UsageList from "./UsageList.jsx";
 
 const TIME_RANGES = [
   { label: "1D", days: 1 },
@@ -75,22 +76,11 @@ function Dashboard() {
   useEffect(loadUsageData, [timeRange, periodOffset])
   useEffect(()=>{loadUsageData(true)}, [page])
 
-  const totalTime = usageData.totalTime
-  const NumOfPages = Math.ceil(usageData.recordsCount / 5)
-
-  const usageListItems = usageData.records
-  .slice(
-    isAllTime ? 0 : DISPLAY_LIMIT * page,
-    isAllTime ? undefined : DISPLAY_LIMIT * page + DISPLAY_LIMIT
-  )
-  .map((record) => <UsageListItem key={record.url} url={record.url} time={record.time} icon={record.icon} total={totalTime} />)
-  
-  const displayedTime = usageData.records.reduce((acc, x) => acc + x.time, 0)
-  const otherTime = totalTime - displayedTime
-
   const timeRangeDays = (isAllTime) ? daysActive : Math.min(daysActive, timeRange.days)
 
-  const dailyAverage = totalTime / timeRangeDays
+  const dailyAverage = usageData.totalTime / timeRangeDays
+
+  const numOfPages = Math.ceil(usageData.recordsCount / 5) - 1
 
   const tabs = TIME_RANGES.map((T) => 
   <Tab 
@@ -103,7 +93,6 @@ function Dashboard() {
   />)
   
   const {startDate, endDate }  = getSelectedPeriod(timeRange.days, periodOffset)
-  console.log("retrieved record's length: ", usageData.records)
 
   return (
       <div className="flex flex-col max-h-[500px]">
@@ -114,7 +103,7 @@ function Dashboard() {
         (<>
 
         <div className="flex justify-between m-1">
-          <Stat label={"Total"} value={formatTime(totalTime)}/>
+          <Stat label={"Total"} value={formatTime(usageData.totalTime)}/>
           {!isSingleDay && <Stat label={"Avg / Day"} value={formatTime(dailyAverage)}/>}
         </div>
 
@@ -136,19 +125,15 @@ function Dashboard() {
           disabled={isAllTime || isSingleDay || isOutOfSync}
         />
 
-        <ul className="flex-1 h-auto min-h-[100px] max-w-[350px] overflow-y-auto pr-2 rounded-sm border border-gray-200 shadow-inner">
-          {usageListItems}
-        </ul>
-
-
-        <div className="m-1 flex min-h-10 items-center justify-center gap-3">
-          <Button onClick={() => setPage((val) => Math.max(val - 1, 0)) }>
-            {"<"}
-          </Button>
-          <Button onClick={() => setPage((val) =>  Math.min(val + 1, NumOfPages))}>
-            {">"}
-          </Button>
-        </div>
+        <UsageList 
+          usageData={usageData}
+          page={page}
+          numOfPages={numOfPages}
+          onNext={() => setPage((val) =>  Math.min(val + 1, numOfPages))}
+          onPrevious={() => setPage((val) => Math.max(val - 1, 0))}
+          displaySize={DISPLAY_LIMIT}
+          isAllTime={isAllTime}
+        />
 
         </>)}
       </div>
