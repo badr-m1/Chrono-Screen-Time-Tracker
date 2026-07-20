@@ -1,7 +1,7 @@
 import UsageListItem from "./UsageListItem";
 import Button from "../ui/Button";
 
-function UsageList({usageData, page, numOfPages, onNext, onPrevious, displaySize, isAllTime}){
+function UsageList({usageData, page, numOfPages, onNext,onLast, onPrevious, onFirst, displaySize, isAllTime}){
     if(!usageData) return 
     const displayedItems = usageData.records
     .slice(
@@ -16,12 +16,15 @@ function UsageList({usageData, page, numOfPages, onNext, onPrevious, displaySize
     const otherTime = usageData.totalTime - displayedTime
     
     return (<>
-        <ul className="flex-1 h-auto min-h-[100px] max-w-[350px] overflow-y-auto pr-2 rounded-sm border border-gray-200 shadow-inner">
+        <ul className="flex-1 h-auto min-h-[100px] max-w-[350px] overflow-y-auto pr-2 rounded-sm border border-base-content/8">
           {usageListItems}
         </ul>
 
 
         <div className="m-1 flex min-h-10 items-center justify-center gap-3">
+          <Button onClick={onFirst}>
+            {"«"}
+          </Button>
           <Button onClick={onPrevious}>
             {"<"}
           </Button>
@@ -30,6 +33,9 @@ function UsageList({usageData, page, numOfPages, onNext, onPrevious, displaySize
 
           <Button onClick={onNext}>
             {">"}
+          </Button>
+          <Button onClick={onLast}>
+            {"»"}
           </Button>
         </div>
     

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import Button from "../ui/Button";
 
-const themes = ["light", "dark", "monochrome light", "monochrome dark", "retro"]; 
+const themes = ["light", "dark"]; 
 
 export default function ThemeSwitcher() {
   const [currentTheme, setCurrentTheme] = useState(themes[0])
@@ -12,30 +13,33 @@ export default function ThemeSwitcher() {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    
-    if(savedTheme){
-      setCurrentTheme(savedTheme)
-    }
-    else{
-      const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-      setCurrentTheme(defaultTheme)
-    }
 
-  }, []);
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light"
+
+      setTheme(defaultTheme)
+    }
+  }, [])
   
+  const toggleTheme = () => {
+    setTheme(currentTheme === "light" ? "dark" : "light");
+  };
 
-  const themeOptions = themes.map(theme => <option value={theme}>{theme}</option>)
   return (
-  <div className="w-full flex justify-between">
-    <span>Theme: </span>
+    <div className="w-full flex justify-between items-center">
+      <span className="text-sm text-base-content/60">
+        Theme
+      </span>
 
-    <select 
-    data-setting-type="value" 
-    onChange={(e) => setTheme(e.target.value)} 
-    value={currentTheme}
-    className="bg-base-200 text-base-content px-4 py-1 border rounded-md">
-      {themeOptions}
-    </select>
-
-  </div>);
+      <Button
+        onClick={toggleTheme}
+      >
+        {currentTheme === "light" ? "Dark Mode" : "Light Mode"}
+      </Button>
+    </div>)
 }

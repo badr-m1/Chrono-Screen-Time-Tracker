@@ -13,20 +13,6 @@ async function getStorageSize(){
   return estimate
 }
 
-/*
-TODO:
--a button that clears old unused data (Icons far down the list that are unlikely to be seen)
--a backup data buttons that gives you a simple json file with all the data in the database
-  -this can be used later for multi device sync 
--a checkbox for enabling and disabling saving icons
--a button for deleting all cached icons
-unsure:
--setting the interval time
--custom themes
--setting qoutas
--the ability to stop the extention form saving icons?
-*/
-
 function Settings(){
     const [appStorageStats, setAppStorageStats] = useState({usage: 0, quota: 0})
     const [searchValue, setSearchValue] = useState("")
@@ -40,7 +26,6 @@ function Settings(){
     return (
     <div className="flex flex-col">
 
-      {/* Appearance */}
       <div className="border-t border-base-content/20 p-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-base-content/40 mb-3">
           Appearance
@@ -48,7 +33,6 @@ function Settings(){
         <ThemeSwitcher />
       </div>
 
-      {/* Data Management */}
       <div className="border-t border-base-content/20 p-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-base-content/40 mb-3">
           Data management
@@ -81,7 +65,6 @@ function Settings(){
         </div>
       </div>
 
-      {/* Backup & Restore */}
       <div className="border-t border-base-content/20 p-4">
         <p className="text-xs font-semibold uppercase tracking-widest text-base-content/40 mb-3">
           Backup & restore

@@ -130,7 +130,9 @@ function Dashboard() {
           page={page}
           numOfPages={numOfPages}
           onNext={() => setPage((val) =>  Math.min(val + 1, numOfPages))}
+          onLast={() => setPage(numOfPages)}
           onPrevious={() => setPage((val) => Math.max(val - 1, 0))}
+          onFirst={() => setPage(0)} 
           displaySize={DISPLAY_LIMIT}
           isAllTime={isAllTime}
         />
