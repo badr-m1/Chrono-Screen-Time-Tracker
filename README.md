@@ -2,7 +2,7 @@
 
 Chrono is a lightweight Chrome extension that monitors your daily screen time across websites.  
 
- ![Screenshot 1](./screenshots/1.PNG)  ![Screenshot 2](./screenshots/2.PNG) 
+ ![Screenshot 1](./screenshots/1.png)  ![Screenshot 2](./screenshots/2.png) 
 
 ---
 
