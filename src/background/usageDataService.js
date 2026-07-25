@@ -20,6 +20,24 @@ async function fetchImageAsBlob(imageUrl) {
   }
 }
 
+async function bulkUpdateIconData(entries) {
+  const entryUrls = entries.map(entry => entry.url)
+  const iconRecords = await db.websiteIcons.bulkGet(entryUrls)
+  const iconPuts = []
+
+  for(let i = 0; i < entries.length; i++){
+    const entry = entries[i]
+    const record = iconRecords[i]
+    if(!record || record.icon == null){
+      const icon = await fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${entry.url}&sz=64`) ??
+      await fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${getDomain(entry.url)}&sz=64`) ??
+      await fetchImageAsBlob(entry.iconUrl);
+
+      iconPuts.push({url: entry.url,  icon: icon})
+    }
+  }
+  db.websiteIcons.bulkPut(iconPuts)
+}
 
 export async function bulkUpdateUsageData(entries) {
   const date = getDayTimestampLocal(new Date(Date.now()));
@@ -59,29 +77,7 @@ export async function bulkUpdateUsageData(entries) {
 
   promises.push(db.websiteTotalUsage.bulkPut(totalUsagePuts))
 
-  const iconRecords = await db.websiteIcons.bulkGet(entryUrls)
-  const iconPuts = []
-
-  for(let i = 0; i < entries.length; i++){
-    const entry = entries[i]
-    const record = iconRecords[i]
-    if(record && record.icon != null){
-      iconPuts.push({url: record.url, icon: record.icon})
-    }
-    else{
-      console.log("entry url: ", entry.url)
-      console.log("entry domain: ", getDomain(entry.url))
-      console.log("entry favicon: ", entry.iconUrl)
-
-      const icon = await fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${entry.url}&sz=64`) ??
-      await fetchImageAsBlob(`https://www.google.com/s2/favicons?domain=${getDomain(entry.url)}&sz=64`) ??
-      await fetchImageAsBlob(entry.iconUrl);
-
-      iconPuts.push({url: entry.url,  icon: icon})
-    }
-  }
-
-  promises.push(db.websiteIcons.bulkPut(iconPuts))
+  bulkUpdateIconData(entries)
 
   const totalTime = entries.reduce((acc, entry) => acc + entry.time, 0)
 

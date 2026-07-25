@@ -99,7 +99,7 @@ function Dashboard() {
         <nav className="flex justify-around border-1 border-base-content/8 bg-surface rounded-sm">
           {tabs}
         </nav>
-        {(usageData.records.length == 0) ? (<h2>There are no screen time tracking data</h2>) :
+        {(usageData.records.length == 0) ? (<h2>Loading...</h2>) :
         (<>
 
         <div className="flex justify-between m-1">

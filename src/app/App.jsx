@@ -26,7 +26,7 @@ function App() {
       {viewSettings && 
       <>
       
-        <h1 className="text-4xl font-bold text-base-content m-2">Settings</h1> 
+        <h1 className="text-4xl font-bold text-base-content border-base-content/8 bg-surface border-1 rounded-sm p-1">Settings</h1> 
 
         <Settings/>
         
@@ -43,7 +43,7 @@ function App() {
 
       {!viewSettings && 
       <>
-        <h1 className="text-4xl font-bold text-base-content border-base-content/8 bg-surface border-1 rounded-sm p-1">Your screentime data</h1> 
+        <h1 className="text-4xl font-bold text-base-content border-base-content/8 bg-surface border-1 rounded-sm p-1">Screen Time</h1> 
 
         <Dashboard/>
 
